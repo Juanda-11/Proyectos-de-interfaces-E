@@ -107,4 +107,50 @@ describe('Canvas', () => {
     fireEvent.click(screen.getByLabelText('Alejar'))
     expect(p.onView.mock.calls[1][0].k).toBeCloseTo(0.8)
   })
+
+  describe('arrastre, desplazamiento y zoom', () => {
+    const svg = () => screen.getByRole('group', { name: /Lienzo/ })
+    const s1 = () => screen.getByRole('button', { name: /^Sector 1, nodo/ })
+
+    it('arrastrar un nodo lo mueve ajustado a la cuadrícula con un solo punto de historial', () => {
+      const p = setup()
+      fireEvent.pointerDown(s1(), { clientX: 660, clientY: 180 })
+      fireEvent.pointerMove(svg(), { clientX: 697, clientY: 185 })
+      fireEvent.pointerMove(svg(), { clientX: 703, clientY: 191 })
+      expect(p.onDragStart).toHaveBeenCalledTimes(1)
+      expect(p.onMove).toHaveBeenLastCalledWith('S1', 700, 200)
+      fireEvent.pointerUp(svg())
+      fireEvent.pointerMove(svg(), { clientX: 900, clientY: 900 })
+      expect(p.onMove).toHaveBeenCalledTimes(2)
+    })
+
+    it('sin ajuste a cuadrícula usa coordenadas enteras', () => {
+      const p = setup({ snapOn: false })
+      fireEvent.pointerDown(s1(), { clientX: 660, clientY: 180 })
+      fireEvent.pointerMove(svg(), { clientX: 697.4, clientY: 185.6 })
+      expect(p.onMove).toHaveBeenCalledWith('S1', 697, 186)
+    })
+
+    it('arrastrar el fondo desplaza la vista y deselecciona', () => {
+      const p = setup({ view: { x: 10, y: 20, k: 1 } })
+      fireEvent.pointerDown(svg(), { clientX: 100, clientY: 100 })
+      expect(p.onSelect).toHaveBeenCalledWith(null)
+      fireEvent.pointerMove(svg(), { clientX: 130, clientY: 90 })
+      expect(p.onView).toHaveBeenCalledWith({ x: 40, y: 10, k: 1 })
+    })
+
+    it('la rueda acerca y aleja con límites', () => {
+      const p = setup()
+      fireEvent.wheel(svg(), { deltaY: -100, clientX: 0, clientY: 0 })
+      expect(p.onView.mock.calls[0][0].k).toBeCloseTo(1.1)
+      fireEvent.wheel(svg(), { deltaY: 100, clientX: 0, clientY: 0 })
+      expect(p.onView.mock.calls[1][0].k).toBeCloseTo(0.9)
+    })
+
+    it('el zoom no pasa de 300 % ni baja de 30 %', () => {
+      const p = setup({ view: { x: 0, y: 0, k: 3 } })
+      fireEvent.wheel(svg(), { deltaY: -100, clientX: 0, clientY: 0 })
+      expect(p.onView.mock.calls[0][0].k).toBe(3)
+    })
+  })
 })
