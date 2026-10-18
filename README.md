@@ -1,55 +1,110 @@
-# HydroGraph AI — Avance 50 %
+# HydroGraph AI — Frontend
 
-## Ejecutar
+Editor visual para **diseñar, simular y auditar redes de suministro de agua** con ayuda de IA. Proyecto final de *Diseño de Interfaces*.
+
+![Editor de HydroGraph AI](docs/screenshots/editor.png)
+
+> Backend (API de simulación y copiloto): [Proyectos-de-interfaces-EB](https://github.com/Juanda-11/Proyectos-de-interfaces-EB)
+
+## Qué se puede hacer
+
+- **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con ajuste a cuadrícula, zoom, desplazamiento y deshacer/rehacer.
+- **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales y lista de problemas que lleva al elemento afectado.
+- **Copiloto IA** (`Ctrl+K`): *«Diseñar red para 4 sectores»*, *«Auditar presiones»*. Usa Claude si el backend tiene clave; si no, un motor por reglas.
+- **Optimizar** con un clic: corrige diámetros con velocidad excesiva y sube la altura de bombas si falta presión.
+- **Importar/exportar**: JSON propio, **EPANET (.inp)** y el diagrama como **SVG/PNG** para informes.
+- **Guardado automático** en el navegador y **modo sin conexión**: si el backend no responde, el editor sigue funcionando con cálculo local de velocidades.
+- **Accesible**: todo el lienzo se maneja con teclado (Tab, Enter, flechas), foco visible, etiquetas ARIA y respeto a `prefers-reduced-motion`.
+
+| Simulación y problemas detectados | Copiloto |
+|---|---|
+| ![Simulación](docs/screenshots/simulacion.png) | ![Copiloto](docs/screenshots/copiloto.png) |
+
+## Ejecutar en local
+
+Necesitas Node 20 o superior.
 
 ```bash
-npm install
-npm run dev            # solo navegador (http://localhost:5173)
-npm run electron:dev   # ventana de escritorio Electron con recarga en vivo
-npm run build && npm run electron   # versión empaquetada local
+# 1) Backend (en el otro repositorio)
+git clone https://github.com/Juanda-11/Proyectos-de-interfaces-EB && cd Proyectos-de-interfaces-EB
+npm install && npm run dev            # http://localhost:3001
+
+# 2) Frontend
+git clone https://github.com/Juanda-11/Proyectos-de-interfaces-E && cd Proyectos-de-interfaces-E
+npm install && npm run dev            # http://localhost:5173
 ```
 
-## Estructura
+En desarrollo, Vite redirige `/api` a `http://localhost:3001` (cámbialo con `BACKEND_URL`). Sin backend la aplicación abre igual, en modo local.
+
+## Variables de entorno
+
+| Variable | Cuándo | Descripción |
+|---|---|---|
+| `VITE_API_URL` | Compilación | URL del backend desplegado, sin barra final. Vacía = mismo origen / proxy de desarrollo |
+| `BACKEND_URL` | Solo `npm run dev` | Destino del proxy de desarrollo (por defecto `http://localhost:3001`) |
+
+## Despliegue en Vercel
+
+1. Despliega primero el [backend](https://github.com/Juanda-11/Proyectos-de-interfaces-EB#despliegue-en-vercel) y anota su URL.
+2. En Vercel: **Add New → Project** → importa este repositorio (se detecta Vite; [`vercel.json`](vercel.json) ya fija el comando de instalación y las cabeceras de seguridad).
+3. En *Environment Variables* añade `VITE_API_URL` = URL del backend (p. ej. `https://hydrograph-api.vercel.app`).
+4. Despliega y copia la URL resultante en la variable `CORS_ORIGINS` del backend (y redespliega el backend).
+
+Guía completa con comprobaciones: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+## Scripts
+
+| Comando | Descripción |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con recarga en vivo |
+| `npm run build` / `npm run preview` | Compilación de producción y vista previa |
+| `npm test` / `npm run coverage` | Pruebas (Vitest + Testing Library) y cobertura |
+| `npm run lint` / `npm run format` | ESLint y Prettier |
+| `npm run check` | Lint + formato + pruebas (lo mismo que ejecuta la CI) |
+| `npm run electron:dev` | Ventana de escritorio (Electron) con recarga en vivo |
+| `npm run build && npm run electron` | Versión de escritorio con la compilación local |
+
+> Para la versión de escritorio, compila con `VITE_API_URL` apuntando al backend (la ventana carga `file://` y no tiene mismo origen).
+
+## Atajos
+
+| Acción | Atajo |
+|---|---|
+| Copiloto | `Ctrl/⌘ + K` (cerrar: `Esc`) |
+| Deshacer / Rehacer | `Ctrl/⌘ + Z` / `Ctrl/⌘ + Y` o `Ctrl/⌘ + Shift + Z` |
+| Eliminar selección | `Supr` / `Retroceso` |
+| Quitar selección y volver al cursor | `Esc` |
+| Mover un nodo enfocado | Flechas (una celda de la cuadrícula) |
+| Zoom / desplazar | Rueda / arrastrar el fondo |
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+  UI[Componentes React] --> Hooks[Hooks: historial, simulación, estado del servidor]
+  Hooks --> API[api/client.js]
+  API -->|/api/*| Backend[(Backend Express)]
+  Hooks --> Local[lib: hidráulica y copiloto locales]
+  UI --> Storage[(localStorage)]
+```
+
+Más detalle en [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ```
-hydrograph-ai/
-├── electron/main.js          # Main process: crea la ventana
-├── src/
-│   ├── main.jsx · index.css  # Entrada + Tailwind + animaciones (flow, alert, rise)
-│   ├── App.jsx               # Estado global: red, selección, herramienta, simulación
-│   ├── data.js               # Tipos de componente, hidráulica (v = Q/A), red demo
-│   └── components/
-│       ├── TopBar.jsx        # Título, badge de estado, Simular Flujo, Exportar
-│       ├── Toolbar.jsx       # Paleta: Tanque, Bomba, Válvula, Tubería, Nódulo
-│       ├── Canvas.jsx        # SVG con cuadrícula, arrastre, snap 20 px, flujo animado
-│       ├── Inspector.jsx     # Propiedades dinámicas + sugerencia IA
-│       └── Copilot.jsx       # Barra flotante Ctrl+K con carga y respuesta simulada
-├── tailwind.config.js        # Colores app/panel/line + bg-water / bg-ai / bg-danger
-└── vite.config.mjs · postcss.config.js · package.json
+src/
+├── App.jsx                 # Composición: estado global, acciones y atajos
+├── api/client.js           # Cliente HTTP con errores tipados y timeout
+├── components/             # TopBar, Toolbar, Canvas, Inspector, Copilot, FileMenu, Toasts…
+├── hooks/                  # useNetworkHistory, useSimulation, useBackendStatus, useToasts
+└── lib/                    # hidráulica local, red demo, validación/importación,
+                            # almacenamiento, exportación (SVG/PNG), copiloto sin conexión
+electron/main.js            # Ventana de escritorio
 ```
 
-## Clases Tailwind clave
+## Pruebas
 
-| Clase                                | Uso                                                 |
-| ------------------------------------ | --------------------------------------------------- |
-| `bg-app` `bg-panel` `border-line`    | Fondos #0F172A / #1E293B y bordes                   |
-| `bg-water`                           | Degradado azul (botón Simular, herramienta activa)  |
-| `bg-ai`                              | Degradado violeta-magenta (copiloto)                |
-| `bg-danger`                          | Degradado naranja-rojo (advertencias)               |
-| `p-[1.5px] bg-ai rounded-2xl`        | Borde degradado (truco de padding)                  |
-| `backdrop-blur-xl`                   | Efecto cristal de la consola IA                     |
-| `font-mono tabular-nums`             | Datos técnicos alineados                            |
-| `.flow` `.alert` `.rise` (index.css) | Flujo del agua, pulso de alerta, entrada de paneles |
+Más de 140 pruebas cubren la lógica (`lib/`, hooks, cliente HTTP) y la interfaz (componentes y flujos completos de `App` con el backend simulado). La CI ejecuta lint, formato, cobertura y build en Node 20 y 22.
 
-## Cómo probar
+## Licencia
 
-1. Pulsa **Simular Flujo**: el agua fluye y la tubería al Sector 3 se pone naranja-roja (DN50 a 8 L/s).
-2. Haz clic en esa tubería y pulsa **Aplicar DN sugerido por IA**: pasa a azul.
-3. Arrastra nodos (ajustan a cuadrícula); usa **Tubería** para conectar dos nodos.
-4. `Ctrl+K` → "Diseñar red para 4 sectores" o "Auditar presiones".
-
-## Avance 70 % — novedades
-
-- Zoom y pan del lienzo, deshacer/rehacer (Ctrl+Z / Ctrl+Y), ajuste a cuadrícula conmutable y barra de estado inferior.
-- **Resumen de la red** en el Inspector (sin selección): métricas y tabla de tramos con velocidad; clic en una fila selecciona la tubería.
-- Etiqueta "Cursor" en la paleta (antes se cortaba "Seleccionar").
+MIT
