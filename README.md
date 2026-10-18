@@ -9,10 +9,11 @@ Editor visual para **diseñar, simular y auditar redes de suministro de agua** c
 ## Qué se puede hacer
 
 - **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con ajuste a cuadrícula, zoom, desplazamiento y deshacer/rehacer.
-- **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales y lista de problemas que lleva al elemento afectado.
-- **Copiloto IA** (`Ctrl+K`): _«Diseñar red para 4 sectores»_, _«Auditar presiones»_. Usa Claude si el backend tiene clave; si no, un motor por reglas.
+- **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales, tuberías coloreadas por velocidad y leyenda plegable y lista de problemas que lleva al elemento afectado.
+- **Copiloto IA** (`Ctrl+K`): _«Diseñar red para 4 sectores»_, _«Auditar presiones»_. Usa **Gemini** (clave gratuita) o Claude si el backend tiene clave; si no, un motor por reglas.
+- **Calcular caudales** (botón _Caudales_): reparte las demandas de los nodos por los tramos de la red.
 - **Optimizar** con un clic: corrige diámetros con velocidad excesiva y sube la altura de bombas si falta presión.
-- **Importar/exportar**: JSON propio, **EPANET (.inp)** y el diagrama como **SVG/PNG** para informes.
+- **Importar/exportar**: JSON propio, **EPANET (.inp)**, el diagrama como **SVG/PNG** y un **informe técnico en Markdown**.
 - **Guardado automático** en el navegador y **modo sin conexión**: si el backend no responde, el editor sigue funcionando con cálculo local de velocidades.
 - **Accesible**: todo el lienzo se maneja con teclado (Tab, Enter, flechas), foco visible, etiquetas ARIA y respeto a `prefers-reduced-motion`.
 
