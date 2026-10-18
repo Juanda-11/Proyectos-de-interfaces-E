@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { Plus, Minus, Maximize, Grid3x3 } from 'lucide-react'
 import { META } from '../lib/componentTypes'
 import { pipeStatus } from '../lib/hydraulics'
@@ -20,8 +20,10 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
     const r = svg.current.getBoundingClientRect()
     zoomTo(view.k * factor, r.width / 2, r.height / 2)
   }
-  const [first, setFirst] = useState(null) // primer nodo elegido con la herramienta Tubería
-  useEffect(() => setFirst(null), [tool])
+  // Primer nodo elegido con la herramienta Tubería; se descarta al cambiar de herramienta
+  const [pending, setPending] = useState({ tool, id: null })
+  const first = pending.tool === tool ? pending.id : null
+  const setFirst = (id) => setPending({ tool, id })
 
   const byId = Object.fromEntries(nodes.map((n) => [n.id, n]))
   const point = (e) => {
