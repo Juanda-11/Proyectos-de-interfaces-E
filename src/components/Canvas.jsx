@@ -1,13 +1,17 @@
 import { useRef, useState } from 'react'
 import { Plus, Minus, Maximize, Grid3x3 } from 'lucide-react'
 import { META } from '../lib/componentTypes'
-import { pipeStatus } from '../lib/hydraulics'
+import { velocity } from '../lib/hydraulics'
 
 const GRID = 20
 const ZOOM_BTN = 'w-8 h-8 grid place-items-center rounded-lg text-slate-300 hover:bg-white/10 transition'
 const snap = (v) => Math.round(v / GRID) * GRID
+const NUDGE = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
-export default function Canvas({ nodes, pipes, selected, tool, running, view, onView, snapOn, onToggleSnap, onDragStart, onSelect, onMove, onConnect }) {
+export default function Canvas({
+  nodes, pipes, selected, tool, running, view, onView, snapOn, onToggleSnap,
+  onDragStart, onSelect, onMove, onConnect, onNudge, statusOfPipe, nodeResult = () => null,
+}) {
   const svg = useRef(null)
   const drag = useRef(null)
   const pan = useRef(null)
@@ -30,17 +34,29 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
     const r = svg.current.getBoundingClientRect()
     return { x: (e.clientX - r.left - view.x) / view.k, y: (e.clientY - r.top - view.y) / view.k } // coordenadas del mundo
   }
-  const down = (e, n) => {
-    e.stopPropagation()
+  const pick = (n) => {
     if (tool === 'pipe') {
       if (!first) setFirst(n.id)
       else { if (first !== n.id) onConnect(first, n.id); setFirst(null) }
-      return
+      return true
     }
+    return false
+  }
+  const down = (e, n) => {
+    e.stopPropagation()
+    if (pick(n)) return
     const p = point(e)
     drag.current = { id: n.id, dx: p.x - n.x, dy: p.y - n.y }
     svg.current.setPointerCapture(e.pointerId)
     onSelect({ kind: 'node', id: n.id })
+  }
+  const nodeKey = (e, n) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (!pick(n)) onSelect({ kind: 'node', id: n.id }) }
+    else if (NUDGE[e.key]) {
+      e.preventDefault()
+      const [dx, dy] = NUDGE[e.key]
+      onNudge?.(n.id, n.x + dx * GRID, n.y + dy * GRID)
+    }
   }
   const move = (e) => {
     if (pan.current) {
@@ -67,7 +83,7 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
   return (
     <>
       <svg
-        ref={svg} className="w-full h-full touch-none"
+        ref={svg} className="w-full h-full touch-none" role="group" aria-label="Lienzo de la red de agua"
         style={{ cursor: tool === 'pipe' ? 'crosshair' : 'default' }}
         onWheel={wheel} onPointerMove={move} onPointerUp={() => { drag.current = null; pan.current = null }} onPointerDown={bgDown}
       >
@@ -81,48 +97,67 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
           </pattern>
         </defs>
         <g transform={`translate(${view.x},${view.y}) scale(${view.k})`}>
-        <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#major)" />
+          <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#major)" />
 
-        {pipes.map((p) => {
-          const a = byId[p.from], b = byId[p.to]
-          if (!a || !b) return null
-          const st = pipeStatus(p, running)
-          const warn = st === 'warn'
-          const w = Math.max(5, p.diameter / 14)
-          const sel = selected?.kind === 'pipe' && selected.id === p.id
-          const l = { x1: a.x, y1: a.y, x2: b.x, y2: b.y, strokeLinecap: 'round' }
-          return (
-            <g key={p.id} className={`cursor-pointer ${warn ? 'alert' : ''}`} onPointerDown={(e) => { e.stopPropagation(); onSelect({ kind: 'pipe', id: p.id }) }}>
-              <linearGradient id={`g${p.id}`} gradientUnits="userSpaceOnUse" x1={a.x} y1={a.y} x2={b.x} y2={b.y}>
-                <stop offset="0" stopColor={warn ? '#F97316' : '#0EA5E9'} />
-                <stop offset="1" stopColor={warn ? '#EF4444' : '#2563EB'} />
-              </linearGradient>
-              {sel && <line {...l} stroke="#38BDF8" strokeOpacity=".3" strokeWidth={w + 12} />}
-              <line {...l} stroke="#0B1220" strokeWidth={w + 6} />
-              <line {...l} stroke={`url(#g${p.id})`} strokeWidth={w} opacity={st === 'idle' ? 0.55 : 1} />
-              {running && <line {...l} stroke="#fff" strokeOpacity=".85" strokeWidth="2.5" strokeDasharray="2 22" className="flow" />}
-              <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - w - 8} textAnchor="middle" className="fill-slate-400 text-[10px] font-mono select-none">DN{p.diameter}</text>
-            </g>
-          )
-        })}
+          {pipes.map((p) => {
+            const a = byId[p.from], b = byId[p.to]
+            if (!a || !b) return null
+            const st = statusOfPipe(p)
+            const warn = st === 'warn'
+            const w = Math.max(5, p.diameter / 14)
+            const sel = selected?.kind === 'pipe' && selected.id === p.id
+            const l = { x1: a.x, y1: a.y, x2: b.x, y2: b.y, strokeLinecap: 'round' }
+            const choose = () => onSelect({ kind: 'pipe', id: p.id })
+            return (
+              <g
+                key={p.id} className={`cursor-pointer ${warn ? 'alert' : ''}`} role="button" tabIndex={0}
+                aria-label={`Tubería ${a.name} a ${b.name}, DN${p.diameter}${warn ? ', velocidad excesiva' : ''}`} aria-pressed={sel}
+                onPointerDown={(e) => { e.stopPropagation(); choose() }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose() } }}
+              >
+                <linearGradient id={`g${p.id}`} gradientUnits="userSpaceOnUse" x1={a.x} y1={a.y} x2={b.x} y2={b.y}>
+                  <stop offset="0" stopColor={warn ? '#F97316' : '#0EA5E9'} />
+                  <stop offset="1" stopColor={warn ? '#EF4444' : '#2563EB'} />
+                </linearGradient>
+                {sel && <line {...l} stroke="#38BDF8" strokeOpacity=".3" strokeWidth={w + 12} />}
+                <line {...l} stroke="#0B1220" strokeWidth={w + 6} />
+                <line {...l} stroke={`url(#g${p.id})`} strokeWidth={w} opacity={st === 'idle' ? 0.55 : 1} />
+                {running && <line {...l} stroke="#fff" strokeOpacity=".85" strokeWidth="2.5" strokeDasharray="2 22" className="flow" />}
+                <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - w - 8} textAnchor="middle" className={`text-[10px] font-mono select-none ${warn ? 'fill-orange-300' : 'fill-slate-400'}`}>
+                  DN{p.diameter}{running && ` · ${velocity(p).toFixed(1)} m/s`}
+                </text>
+              </g>
+            )
+          })}
 
-        {nodes.map((n) => {
-          const m = META[n.type], Icon = m.icon
-          const sel = selected?.kind === 'node' && selected.id === n.id
-          return (
-            <g key={n.id} transform={`translate(${n.x - 28},${n.y - 28})`} onPointerDown={(e) => down(e, n)} className="cursor-grab active:cursor-grabbing">
-              <rect width="56" height="56" rx="14" fill="#1E293B" stroke={sel || first === n.id ? '#38BDF8' : m.color} strokeWidth={sel ? 2.5 : 1.5} style={{ filter: `drop-shadow(0 0 8px ${m.color}66)` }} />
-              <foreignObject width="56" height="56">
-                <div className="w-full h-full grid place-items-center" style={{ color: m.color }}><Icon size={26} /></div>
-              </foreignObject>
-              <text x="28" y="74" textAnchor="middle" className="fill-slate-300 text-[11px] font-mono select-none">{n.name}</text>
-            </g>
-          )
-        })}
+          {nodes.map((n) => {
+            const m = META[n.type], Icon = m.icon
+            const sel = selected?.kind === 'node' && selected.id === n.id
+            const res = nodeResult(n.id)
+            const bad = res && res.status !== 'ok'
+            return (
+              <g
+                key={n.id} transform={`translate(${n.x - 28},${n.y - 28})`} role="button" tabIndex={0}
+                aria-label={`${m.label} ${n.name}${typeof res?.pressure === 'number' ? `, ${res.pressure} metros de columna de agua` : ''}`} aria-pressed={sel}
+                onPointerDown={(e) => down(e, n)} onKeyDown={(e) => nodeKey(e, n)} className="cursor-grab active:cursor-grabbing"
+              >
+                <rect width="56" height="56" rx="14" fill="#1E293B" stroke={sel || first === n.id ? '#38BDF8' : bad ? '#F97316' : m.color} strokeWidth={sel ? 2.5 : 1.5} style={{ filter: `drop-shadow(0 0 8px ${m.color}66)` }} />
+                <foreignObject width="56" height="56">
+                  <div className="w-full h-full grid place-items-center" style={{ color: m.color }}><Icon size={26} /></div>
+                </foreignObject>
+                <text x="28" y="74" textAnchor="middle" className="fill-slate-300 text-[11px] font-mono select-none">{n.name}</text>
+                {typeof res?.pressure === 'number' && (
+                  <text x="28" y="88" textAnchor="middle" className={`text-[10px] font-mono select-none ${bad ? 'fill-orange-400' : 'fill-sky-300'}`}>
+                    {res.pressure.toFixed(1)} m.c.a.
+                  </text>
+                )}
+              </g>
+            )
+          })}
         </g>
       </svg>
       {tool === 'pipe' && (
-        <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg bg-panel/90 border border-line text-xs text-sky-300">
+        <div className="absolute top-3 left-3 px-3 py-1.5 rounded-lg bg-panel/90 border border-line text-xs text-sky-300" role="status">
           {first ? 'Elige el segundo componente' : 'Haz clic en dos componentes para conectarlos'}
         </div>
       )}
