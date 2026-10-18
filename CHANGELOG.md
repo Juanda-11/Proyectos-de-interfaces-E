@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- Controles del lienzo: **encuadrar toda la red**, **mostrar/ocultar la cuadrícula**, **imán** independiente y **pantalla completa**.
+
 ## 1.1.0
 
 - **Gemini** como proveedor de IA gratuito (backend); el pie de página indica el proveedor activo.

@@ -5,25 +5,26 @@ import { makeSectors } from '../lib/network'
 import { pipeStatus } from '../lib/hydraulics'
 
 const net = makeSectors(3)
+const baseProps = (extra = {}) => ({
+  nodes: net.nodes,
+  pipes: net.pipes,
+  selected: null,
+  tool: 'select',
+  running: false,
+  view: { x: 0, y: 0, k: 1 },
+  onView: vi.fn(),
+  snapOn: true,
+  onToggleSnap: vi.fn(),
+  onDragStart: vi.fn(),
+  onSelect: vi.fn(),
+  onMove: vi.fn(),
+  onConnect: vi.fn(),
+  onNudge: vi.fn(),
+  statusOfPipe: (pipe) => pipeStatus(pipe, extra.running ?? false),
+  ...extra,
+})
 const setup = (extra = {}) => {
-  const p = {
-    nodes: net.nodes,
-    pipes: net.pipes,
-    selected: null,
-    tool: 'select',
-    running: false,
-    view: { x: 0, y: 0, k: 1 },
-    onView: vi.fn(),
-    snapOn: true,
-    onToggleSnap: vi.fn(),
-    onDragStart: vi.fn(),
-    onSelect: vi.fn(),
-    onMove: vi.fn(),
-    onConnect: vi.fn(),
-    onNudge: vi.fn(),
-    statusOfPipe: (pipe) => pipeStatus(pipe, extra.running ?? false),
-    ...extra,
-  }
+  const p = baseProps(extra)
   render(<Canvas {...p} />)
   return p
 }
@@ -98,13 +99,52 @@ describe('Canvas', () => {
     setup({ nodeResult: (id) => (id === 'S3' ? { pressure: 13.3, status: 'ok' } : null) })
     expect(screen.getByText('13.3 m.c.a.')).toBeInTheDocument()
   })
-  it('los controles de vista llaman a onView y onToggleSnap', () => {
+  it('el imán activa y desactiva el ajuste a la cuadrícula', () => {
     const p = setup()
-    fireEvent.click(screen.getByLabelText('Restablecer vista'))
-    expect(p.onView).toHaveBeenCalledWith({ x: 0, y: 0, k: 1 })
     fireEvent.click(screen.getByLabelText('Ajuste a cuadrícula'))
     expect(p.onToggleSnap).toHaveBeenCalled()
     expect(screen.getByLabelText('Ajuste a cuadrícula')).toHaveAttribute('aria-pressed', 'true')
+  })
+  it('la cuadrícula se puede ocultar y mostrar', () => {
+    const { container } = render(<Canvas {...baseProps()} gridOn />)
+    expect(container.querySelector('rect[fill="url(#major)"]')).not.toBeNull()
+    const off = render(<Canvas {...baseProps()} gridOn={false} />)
+    expect(off.container.querySelector('rect[fill="url(#major)"]')).toBeNull()
+  })
+  it('el botón de cuadrícula llama a onToggleGrid', () => {
+    const onToggleGrid = vi.fn()
+    render(<Canvas {...baseProps()} gridOn onToggleGrid={onToggleGrid} />)
+    fireEvent.click(screen.getByLabelText('Mostrar cuadrícula'))
+    expect(onToggleGrid).toHaveBeenCalled()
+  })
+  it('encuadrar la red ajusta zoom y posición a todos los nodos', () => {
+    const p = setup()
+    vi.spyOn(SVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 1000,
+      height: 600,
+      left: 0,
+      top: 0,
+    })
+    fireEvent.click(screen.getByLabelText('Encuadrar toda la red'))
+    const { x, y, k } = p.onView.mock.calls[0][0]
+    for (const n of net.nodes) {
+      expect(n.x * k + x).toBeGreaterThan(0)
+      expect(n.x * k + x).toBeLessThan(1000)
+      expect(n.y * k + y).toBeGreaterThan(0)
+      expect(n.y * k + y).toBeLessThan(600)
+    }
+  })
+  it('muestra el botón de pantalla completa solo si el navegador la soporta', () => {
+    const { unmount } = render(<Canvas {...baseProps()} />)
+    expect(screen.queryByLabelText('Pantalla completa')).toBeNull()
+    unmount()
+    Object.defineProperty(document, 'fullscreenEnabled', { value: true, configurable: true })
+    document.documentElement.requestFullscreen = vi.fn().mockResolvedValue()
+    render(<Canvas {...baseProps()} />)
+    fireEvent.click(screen.getByLabelText('Pantalla completa'))
+    expect(document.documentElement.requestFullscreen).toHaveBeenCalled()
+    delete document.fullscreenEnabled
+    delete document.documentElement.requestFullscreen
   })
   it('los botones de zoom piden un nivel mayor o menor', () => {
     const p = setup()

@@ -8,7 +8,7 @@ Editor visual para **diseñar, simular y auditar redes de suministro de agua** c
 
 ## Qué se puede hacer
 
-- **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con ajuste a cuadrícula, zoom, desplazamiento y deshacer/rehacer.
+- **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con imán a la cuadrícula (opcional), mostrar u ocultar la cuadrícula, zoom, desplazamiento, **encuadrar toda la red**, pantalla completa y deshacer/rehacer.
 - **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales, tuberías coloreadas por velocidad y leyenda plegable y lista de problemas que lleva al elemento afectado.
 - **Copiloto IA** (`Ctrl+K`): _«Diseñar red para 4 sectores»_, _«Auditar presiones»_. Usa **Gemini** (clave gratuita) o Claude si el backend tiene clave; si no, un motor por reglas.
 - **Calcular caudales** (botón _Caudales_): reparte las demandas de los nodos por los tramos de la red.

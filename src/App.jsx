@@ -33,6 +33,7 @@ export default function App() {
   const [tool, setTool] = useState('select')
   const [view, setView] = useState({ x: 0, y: 0, k: 1 })
   const [snapOn, setSnapOn] = useState(true)
+  const [gridOn, setGridOn] = useState(true)
   const [busy, setBusy] = useState(null) // 'optimize' | 'balance' | 'export'
   const [inspectorOpen, setInspectorOpen] = useState(true)
   const backend = useBackendStatus()
@@ -297,6 +298,8 @@ export default function App() {
             onView={setView}
             snapOn={snapOn}
             onToggleSnap={() => setSnapOn((s) => !s)}
+            gridOn={gridOn}
+            onToggleGrid={() => setGridOn((g) => !g)}
             onDragStart={checkpoint}
             onSelect={setSelected}
             onMove={(id, x, y) => updateNode(id, { x, y })}
@@ -331,7 +334,8 @@ export default function App() {
       </div>
       <footer className="h-6 shrink-0 flex items-center gap-4 px-4 bg-panel border-t border-line font-mono text-[11px] text-slate-400">
         <span>Zoom {Math.round(view.k * 100)}%</span>
-        <span>Cuadrícula {snapOn ? 'ON' : 'OFF'}</span>
+        <span>Cuadrícula {gridOn ? 'visible' : 'oculta'}</span>
+        <span>Imán {snapOn ? 'ON' : 'OFF'}</span>
         <span>
           {net.nodes.length} nodos · {net.pipes.length} tuberías
         </span>
