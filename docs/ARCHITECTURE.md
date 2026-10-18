@@ -46,9 +46,9 @@ Mientras la simulación está activa, cada cambio de la red reinicia un temporiz
 
 ## Decisiones
 
-| Decisión | Motivo |
-|---|---|
-| Tailwind 3 en vez de 4 | Evitar reescribir toda la configuración de diseño a poco de la entrega; las dependencias vulnerables son solo de compilación y no se publican |
-| React 18 | Versión con la que se desarrolló el prototipo; sin necesidad de migrar |
-| `localStorage` para autoguardado | Sin cuentas ni base de datos: el alcance del proyecto es un editor personal |
-| SVG propio para exportar | El SVG del lienzo depende de clases CSS; el exportado es autónomo y se ve igual en cualquier visor |
+| Decisión                         | Motivo                                                                                                                                        |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tailwind 3 en vez de 4           | Evitar reescribir toda la configuración de diseño a poco de la entrega; las dependencias vulnerables son solo de compilación y no se publican |
+| React 18                         | Versión con la que se desarrolló el prototipo; sin necesidad de migrar                                                                        |
+| `localStorage` para autoguardado | Sin cuentas ni base de datos: el alcance del proyecto es un editor personal                                                                   |
+| SVG propio para exportar         | El SVG del lienzo depende de clases CSS; el exportado es autónomo y se ve igual en cualquier visor                                            |

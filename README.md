@@ -1,6 +1,6 @@
 # HydroGraph AI — Frontend
 
-Editor visual para **diseñar, simular y auditar redes de suministro de agua** con ayuda de IA. Proyecto final de *Diseño de Interfaces*.
+Editor visual para **diseñar, simular y auditar redes de suministro de agua** con ayuda de IA. Proyecto final de _Diseño de Interfaces_.
 
 ![Editor de HydroGraph AI](docs/screenshots/editor.png)
 
@@ -10,14 +10,14 @@ Editor visual para **diseñar, simular y auditar redes de suministro de agua** c
 
 - **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con ajuste a cuadrícula, zoom, desplazamiento y deshacer/rehacer.
 - **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales y lista de problemas que lleva al elemento afectado.
-- **Copiloto IA** (`Ctrl+K`): *«Diseñar red para 4 sectores»*, *«Auditar presiones»*. Usa Claude si el backend tiene clave; si no, un motor por reglas.
+- **Copiloto IA** (`Ctrl+K`): _«Diseñar red para 4 sectores»_, _«Auditar presiones»_. Usa Claude si el backend tiene clave; si no, un motor por reglas.
 - **Optimizar** con un clic: corrige diámetros con velocidad excesiva y sube la altura de bombas si falta presión.
 - **Importar/exportar**: JSON propio, **EPANET (.inp)** y el diagrama como **SVG/PNG** para informes.
 - **Guardado automático** en el navegador y **modo sin conexión**: si el backend no responde, el editor sigue funcionando con cálculo local de velocidades.
 - **Accesible**: todo el lienzo se maneja con teclado (Tab, Enter, flechas), foco visible, etiquetas ARIA y respeto a `prefers-reduced-motion`.
 
-| Simulación y problemas detectados | Copiloto |
-|---|---|
+| Simulación y problemas detectados              | Copiloto                                   |
+| ---------------------------------------------- | ------------------------------------------ |
 | ![Simulación](docs/screenshots/simulacion.png) | ![Copiloto](docs/screenshots/copiloto.png) |
 
 ## Ejecutar en local
@@ -38,44 +38,44 @@ En desarrollo, Vite redirige `/api` a `http://localhost:3001` (cámbialo con `BA
 
 ## Variables de entorno
 
-| Variable | Cuándo | Descripción |
-|---|---|---|
-| `VITE_API_URL` | Compilación | URL del backend desplegado, sin barra final. Vacía = mismo origen / proxy de desarrollo |
-| `BACKEND_URL` | Solo `npm run dev` | Destino del proxy de desarrollo (por defecto `http://localhost:3001`) |
+| Variable       | Cuándo             | Descripción                                                                             |
+| -------------- | ------------------ | --------------------------------------------------------------------------------------- |
+| `VITE_API_URL` | Compilación        | URL del backend desplegado, sin barra final. Vacía = mismo origen / proxy de desarrollo |
+| `BACKEND_URL`  | Solo `npm run dev` | Destino del proxy de desarrollo (por defecto `http://localhost:3001`)                   |
 
 ## Despliegue en Vercel
 
 1. Despliega primero el [backend](https://github.com/Juanda-11/Proyectos-de-interfaces-EB#despliegue-en-vercel) y anota su URL.
 2. En Vercel: **Add New → Project** → importa este repositorio (se detecta Vite; [`vercel.json`](vercel.json) ya fija el comando de instalación y las cabeceras de seguridad).
-3. En *Environment Variables* añade `VITE_API_URL` = URL del backend (p. ej. `https://hydrograph-api.vercel.app`).
+3. En _Environment Variables_ añade `VITE_API_URL` = URL del backend (p. ej. `https://hydrograph-api.vercel.app`).
 4. Despliega y copia la URL resultante en la variable `CORS_ORIGINS` del backend (y redespliega el backend).
 
 Guía completa con comprobaciones: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Scripts
 
-| Comando | Descripción |
-|---|---|
-| `npm run dev` | Servidor de desarrollo con recarga en vivo |
-| `npm run build` / `npm run preview` | Compilación de producción y vista previa |
-| `npm test` / `npm run coverage` | Pruebas (Vitest + Testing Library) y cobertura |
-| `npm run lint` / `npm run format` | ESLint y Prettier |
-| `npm run check` | Lint + formato + pruebas (lo mismo que ejecuta la CI) |
-| `npm run electron:dev` | Ventana de escritorio (Electron) con recarga en vivo |
-| `npm run build && npm run electron` | Versión de escritorio con la compilación local |
+| Comando                             | Descripción                                           |
+| ----------------------------------- | ----------------------------------------------------- |
+| `npm run dev`                       | Servidor de desarrollo con recarga en vivo            |
+| `npm run build` / `npm run preview` | Compilación de producción y vista previa              |
+| `npm test` / `npm run coverage`     | Pruebas (Vitest + Testing Library) y cobertura        |
+| `npm run lint` / `npm run format`   | ESLint y Prettier                                     |
+| `npm run check`                     | Lint + formato + pruebas (lo mismo que ejecuta la CI) |
+| `npm run electron:dev`              | Ventana de escritorio (Electron) con recarga en vivo  |
+| `npm run build && npm run electron` | Versión de escritorio con la compilación local        |
 
 > Para la versión de escritorio, compila con `VITE_API_URL` apuntando al backend (la ventana carga `file://` y no tiene mismo origen).
 
 ## Atajos
 
-| Acción | Atajo |
-|---|---|
-| Copiloto | `Ctrl/⌘ + K` (cerrar: `Esc`) |
-| Deshacer / Rehacer | `Ctrl/⌘ + Z` / `Ctrl/⌘ + Y` o `Ctrl/⌘ + Shift + Z` |
-| Eliminar selección | `Supr` / `Retroceso` |
-| Quitar selección y volver al cursor | `Esc` |
-| Mover un nodo enfocado | Flechas (una celda de la cuadrícula) |
-| Zoom / desplazar | Rueda / arrastrar el fondo |
+| Acción                              | Atajo                                              |
+| ----------------------------------- | -------------------------------------------------- |
+| Copiloto                            | `Ctrl/⌘ + K` (cerrar: `Esc`)                       |
+| Deshacer / Rehacer                  | `Ctrl/⌘ + Z` / `Ctrl/⌘ + Y` o `Ctrl/⌘ + Shift + Z` |
+| Eliminar selección                  | `Supr` / `Retroceso`                               |
+| Quitar selección y volver al cursor | `Esc`                                              |
+| Mover un nodo enfocado              | Flechas (una celda de la cuadrícula)               |
+| Zoom / desplazar                    | Rueda / arrastrar el fondo                         |
 
 ## Arquitectura
 

@@ -5,6 +5,7 @@
 Primera versión de entrega. Frontend separado del backend.
 
 ### Añadido
+
 - Conexión con el backend: simulación (presiones, pérdidas de carga), copiloto, optimización y exportación a EPANET.
 - Lista de problemas con navegación al elemento afectado; presión y velocidad visibles en el lienzo.
 - Importar JSON, exportar JSON, EPANET, SVG y PNG.
@@ -15,11 +16,13 @@ Primera versión de entrega. Frontend separado del backend.
 - Configuración de Vercel.
 
 ### Cambiado
+
 - El proyecto pasa de `hydrograph-ai/` a la raíz del repositorio.
 - Estado dividido en hooks (`useNetworkHistory`, `useSimulation`, …) y `data.js` en módulos de `lib/`.
 - Vite 7, plugin de React 5 y Electron actualizados.
 
 ### Corregido
+
 - Pulsar `Retroceso` o `Supr` con un slider del inspector enfocado eliminaba el elemento seleccionado.
 - La etiqueta «Nódulo» ahora es «Nodo».
 - Efectos y lecturas de refs durante el render señalados por las reglas de React.
