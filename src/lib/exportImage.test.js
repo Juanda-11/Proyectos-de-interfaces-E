@@ -33,6 +33,19 @@ describe('networkToSvg', () => {
     expect(parse(svg).querySelector('parsererror')).toBeNull()
     expect(svg).toContain('&lt;Tanque &amp; &quot;Norte&quot;&gt;')
   })
+  it('encuadra la red sin dejar espacio vacío hasta el origen', () => {
+    const far = {
+      nodes: [
+        { ...net.nodes[0], x: 1000, y: 800 },
+        { ...net.nodes[1], x: 1200, y: 900 },
+      ],
+      pipes: [],
+    }
+    const { svg, width } = networkToSvg(far)
+    const [x0] = parse(svg).documentElement.getAttribute('viewBox').split(' ').map(Number)
+    expect(x0).toBe(910)
+    expect(width).toBe(380)
+  })
   it('omite tuberías con extremos inexistentes y soporta una red vacía', () => {
     const broken = {
       nodes: net.nodes.slice(0, 1),

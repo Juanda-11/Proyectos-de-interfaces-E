@@ -22,12 +22,12 @@ export function networkToSvg(
     title = 'HydroGraph AI · Red de distribución',
   } = {},
 ) {
-  const xs = net.nodes.map((n) => n.x)
-  const ys = net.nodes.map((n) => n.y)
-  const x0 = Math.min(...xs, 0) - PAD
-  const y0 = Math.min(...ys, 0) - PAD - 30
-  const x1 = Math.max(...xs, 0) + PAD
-  const y1 = Math.max(...ys, 0) + PAD
+  const xs = net.nodes.length ? net.nodes.map((n) => n.x) : [0]
+  const ys = net.nodes.length ? net.nodes.map((n) => n.y) : [0]
+  const x0 = Math.min(...xs) - PAD
+  const y0 = Math.min(...ys) - PAD - 30
+  const x1 = Math.max(...xs) + PAD
+  const y1 = Math.max(...ys) + PAD
   const width = Math.max(1, Math.round(x1 - x0))
   const height = Math.max(1, Math.round(y1 - y0))
   const byId = new Map(net.nodes.map((n) => [n.id, n]))
