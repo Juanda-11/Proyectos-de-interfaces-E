@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { velocity, pipeStatus, suggestDiameter, MAX_V } from './hydraulics'
+import { velocity, pipeStatus, suggestDiameter, velocityTier, MAX_V } from './hydraulics'
 
 describe('velocity', () => {
   it('calcula Q/A', () => {
@@ -29,5 +29,13 @@ describe('suggestDiameter', () => {
   it('8 L/s requieren DN75 y nunca baja de 25 mm', () => {
     expect(suggestDiameter({ flow: 8 })).toBe(75)
     expect(suggestDiameter({ flow: 0.01 })).toBe(25)
+  })
+})
+
+describe('velocityTier', () => {
+  it('clasifica por velocidad de diseño y máxima', () => {
+    expect(velocityTier({ flow: 4, diameter: 100 })).toBe('ok') // 0.51 m/s
+    expect(velocityTier({ flow: 4, diameter: 50 })).toBe('caution') // 2.04 m/s
+    expect(velocityTier({ flow: 8, diameter: 50 })).toBe('warn') // 4.07 m/s
   })
 })
