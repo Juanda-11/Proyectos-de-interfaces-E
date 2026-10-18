@@ -67,17 +67,35 @@ describe('api client', () => {
     expect(err.details).toHaveLength(1)
   })
 
+  it('un 404 que no viene de la API se marca como NO_API con una pista de configuración', async () => {
+    fetch.mockResolvedValue({
+      ok: false,
+      status: 404,
+      json: async () => Promise.reject(new Error('html')),
+    })
+    const err = await api.simulate(net).catch((e) => e)
+    expect(err).toMatchObject({ status: 404, code: 'NO_API' })
+    expect(err.message).toMatch(/VITE_API_URL/)
+  })
+
+  it('un 404 JSON de la propia API conserva su código', async () => {
+    fetch.mockResolvedValue(
+      json({ error: { code: 'NOT_FOUND', message: 'Ruta no encontrada' } }, 404),
+    )
+    expect(await api.simulate(net).catch((e) => e.code)).toBe('NOT_FOUND')
+  })
+
   it('tolera respuestas de error sin JSON', async () => {
     fetch.mockResolvedValue({
       ok: false,
-      status: 502,
+      status: 500,
       json: async () => Promise.reject(new Error('html')),
     })
     const err = await api.simulate(net).catch((e) => e)
     expect(err).toMatchObject({
-      status: 502,
+      status: 500,
       code: 'HTTP_ERROR',
-      message: 'Error 502 del servidor',
+      message: 'Error 500 del servidor',
     })
   })
 

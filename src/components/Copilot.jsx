@@ -19,7 +19,7 @@ export default function Copilot({ onSubmit }) {
   useEffect(() => {
     alive.current = true
     const key = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      if ((e.ctrlKey || e.metaKey) && e.key?.toLowerCase() === 'k') {
         e.preventDefault()
         setOpen((o) => !o)
       }

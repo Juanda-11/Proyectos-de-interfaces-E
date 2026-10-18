@@ -35,7 +35,7 @@ export function useSimulation(net, { onOffline, onError } = {}) {
       } catch (err) {
         if (cancelled) return
         setResult(null)
-        if (err.code === 'NETWORK' || err.code === 'TIMEOUT') {
+        if (['NETWORK', 'TIMEOUT', 'NO_API'].includes(err.code)) {
           setStatus('offline')
           if (!offline.current) callbacks.current.onOffline?.(err)
           offline.current = true
