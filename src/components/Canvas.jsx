@@ -6,6 +6,8 @@ import { velocity } from '../lib/hydraulics'
 const GRID = 20
 const ZOOM_BTN = 'w-8 h-8 grid place-items-center rounded-lg text-slate-300 hover:bg-white/10 transition'
 const snap = (v) => Math.round(v / GRID) * GRID
+/** Contorno del color del fondo para que las etiquetas se lean sobre las tuberías */
+const HALO = { paintOrder: 'stroke', stroke: '#0F172A', strokeWidth: 3, strokeLinejoin: 'round' }
 const NUDGE = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
 export default function Canvas({
@@ -123,7 +125,7 @@ export default function Canvas({
                 <line {...l} stroke="#0B1220" strokeWidth={w + 6} />
                 <line {...l} stroke={`url(#g${p.id})`} strokeWidth={w} opacity={st === 'idle' ? 0.55 : 1} />
                 {running && <line {...l} stroke="#fff" strokeOpacity=".85" strokeWidth="2.5" strokeDasharray="2 22" className="flow" />}
-                <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - w - 8} textAnchor="middle" className={`text-[10px] font-mono select-none ${warn ? 'fill-orange-300' : 'fill-slate-400'}`}>
+                <text x={(a.x + b.x) / 2} y={(a.y + b.y) / 2 - w - 8} textAnchor="middle" className={`text-[10px] font-mono select-none ${warn ? 'fill-orange-300' : 'fill-slate-400'}`} style={HALO}>
                   DN{p.diameter}{running && ` · ${velocity(p).toFixed(1)} m/s`}
                 </text>
               </g>
@@ -145,7 +147,7 @@ export default function Canvas({
                 <foreignObject width="56" height="56">
                   <div className="w-full h-full grid place-items-center" style={{ color: m.color }}><Icon size={26} /></div>
                 </foreignObject>
-                <text x="28" y="74" textAnchor="middle" className="fill-slate-300 text-[11px] font-mono select-none">{n.name}</text>
+                <text x="28" y="74" textAnchor="middle" className="fill-slate-300 text-[11px] font-mono select-none" style={HALO}>{n.name}</text>
                 {typeof res?.pressure === 'number' && (
                   <text x="28" y="88" textAnchor="middle" className={`text-[10px] font-mono select-none ${bad ? 'fill-orange-400' : 'fill-sky-300'}`}>
                     {res.pressure.toFixed(1)} m.c.a.
