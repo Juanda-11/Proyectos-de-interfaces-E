@@ -3,36 +3,48 @@ import { Sparkles, X, CornerDownLeft } from 'lucide-react'
 
 const SUGGESTIONS = ['Diseñar red para 3 sectores', 'Auditar presiones de la red']
 
-export default function Copilot({ onGenerate, onAudit }) {
+/**
+ * Consola flotante del copiloto (Ctrl+K). `onSubmit(orden)` devuelve una promesa con
+ * `{ message, source }`; si rechaza, el error se muestra como respuesta del copiloto.
+ */
+export default function Copilot({ onSubmit }) {
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [msgs, setMsgs] = useState([])
   const input = useRef(null)
   const end = useRef(null)
+  const alive = useRef(true)
 
   useEffect(() => {
+    alive.current = true
     const key = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setOpen((o) => !o) }
       if (e.key === 'Escape') setOpen(false)
     }
     window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    return () => { alive.current = false; window.removeEventListener('keydown', key) }
   }, [])
   useEffect(() => { if (open) input.current?.focus() }, [open])
-  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth' }), [msgs, loading])
+  useEffect(() => end.current?.scrollIntoView?.({ behavior: 'smooth' }), [msgs, loading])
 
-  const submit = (q = text) => {
+  const submit = async (q = text) => {
     q = q.trim()
     if (!q || loading) return
     setMsgs((m) => [...m, { role: 'user', t: q }])
-    setText(''); setLoading(true)
-    setTimeout(() => { // simula la latencia del modelo
-      const reply = /audit|presi|fuga|revis/i.test(q) ? onAudit()
-        : /dise|red|sector|genera/i.test(q) ? onGenerate(q)
-        : 'Puedo diseñar redes ("Diseñar red para 3 sectores") o auditarlas ("Auditar presiones").'
-      setMsgs((m) => [...m, { role: 'ai', t: reply }]); setLoading(false)
-    }, 1800)
+    setText('')
+    setLoading(true)
+    let reply
+    try {
+      const { message, source } = await onSubmit(q)
+      reply = { role: 'ai', t: message, source }
+    } catch (err) {
+      reply = { role: 'ai', t: err.message || 'No pude completar la orden.', error: true }
+    }
+    if (!alive.current) return
+    setMsgs((m) => [...m, reply])
+    setLoading(false)
+    requestAnimationFrame(() => input.current?.focus())
   }
 
   if (!open)
@@ -44,13 +56,16 @@ export default function Copilot({ onGenerate, onAudit }) {
     )
 
   return (
-    <div className="rise absolute bottom-6 left-1/2 -translate-x-1/2 w-[640px] max-w-[92%] rounded-2xl p-[1.5px] bg-ai shadow-[0_0_44px_rgba(139,92,246,.45)]">
+    <div role="dialog" aria-label="Copiloto IA" className="rise absolute bottom-6 left-1/2 -translate-x-1/2 w-[640px] max-w-[92%] rounded-2xl p-[1.5px] bg-ai shadow-[0_0_44px_rgba(139,92,246,.45)]">
       <div className="rounded-2xl bg-app/95 backdrop-blur-xl">
         {(msgs.length > 0 || loading) && (
-          <div className="max-h-52 overflow-y-auto p-4 space-y-3 text-sm border-b border-line">
+          <div className="max-h-52 overflow-y-auto p-4 space-y-3 text-sm border-b border-line" aria-live="polite">
             {msgs.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
-                <span className={`inline-block max-w-[85%] px-3 py-2 rounded-xl text-left ${m.role === 'user' ? 'bg-panel text-slate-200' : 'bg-violet-500/15 text-violet-100 border border-violet-400/20'}`}>{m.t}</span>
+                <span className={`inline-block max-w-[85%] px-3 py-2 rounded-xl text-left ${m.role === 'user' ? 'bg-panel text-slate-200' : m.error ? 'bg-red-500/10 text-red-200 border border-red-400/30' : 'bg-violet-500/15 text-violet-100 border border-violet-400/20'}`}>
+                  {m.t}
+                  {m.source && <span className="ml-2 align-middle text-[10px] font-mono uppercase tracking-wide text-violet-300/70">{m.source === 'ai' ? 'IA' : 'reglas'}</span>}
+                </span>
               </div>
             ))}
             {loading && (
@@ -66,11 +81,12 @@ export default function Copilot({ onGenerate, onAudit }) {
           <Sparkles size={18} className="text-fuchsia-400 shrink-0" />
           <input
             ref={input} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && submit()}
+            aria-label="Orden para el copiloto" maxLength={500}
             placeholder='Escribe una orden, p. ej. "Diseñar red para 3 sectores"' disabled={loading}
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
           />
           <CornerDownLeft size={15} className="text-slate-500" />
-          <button onClick={() => setOpen(false)} title="Cerrar (Esc)" className="text-slate-400 hover:text-white"><X size={16} /></button>
+          <button onClick={() => setOpen(false)} title="Cerrar (Esc)" aria-label="Cerrar copiloto" className="text-slate-400 hover:text-white"><X size={16} /></button>
         </div>
         {msgs.length === 0 && (
           <div className="flex gap-2 px-4 pb-3">
