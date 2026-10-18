@@ -1,5 +1,6 @@
 import { Trash2, Sparkles, MousePointerClick } from 'lucide-react'
-import { META, velocity, pipeStatus, suggestDiameter } from '../data'
+import { META } from '../lib/componentTypes'
+import { velocity, pipeStatus, suggestDiameter } from '../lib/hydraulics'
 
 const Slider = ({ label, unit, value, min, max, step = 1, onChange }) => (
   <label className="block">

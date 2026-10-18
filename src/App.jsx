@@ -4,9 +4,11 @@ import Toolbar from './components/Toolbar'
 import Canvas from './components/Canvas'
 import Inspector from './components/Inspector'
 import Copilot from './components/Copilot'
-import { META, makeSectors, pipeStatus, suggestDiameter } from './data'
+import { META } from './lib/componentTypes'
+import { makeSectors, newId } from './lib/network'
+import { pipeStatus, suggestDiameter } from './lib/hydraulics'
 
-const uid = () => Math.random().toString(36).slice(2, 7)
+const uid = newId
 
 export default function App() {
   const [net, setNet] = useState(() => makeSectors(3))

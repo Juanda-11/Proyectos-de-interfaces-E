@@ -1,5 +1,5 @@
 import { MousePointer2, Spline } from 'lucide-react'
-import { META } from '../data'
+import { META } from '../lib/componentTypes'
 
 const items = [
   { id: 'select', label: 'Cursor', icon: MousePointer2, color: '#E2E8F0' },

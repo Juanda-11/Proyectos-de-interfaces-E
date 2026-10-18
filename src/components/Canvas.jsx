@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Plus, Minus, Maximize, Grid3x3 } from 'lucide-react'
-import { META, pipeStatus } from '../data'
+import { META } from '../lib/componentTypes'
+import { pipeStatus } from '../lib/hydraulics'
 
 const GRID = 20
 const snap = (v) => Math.round(v / GRID) * GRID
