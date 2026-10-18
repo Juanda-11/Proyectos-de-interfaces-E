@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, FilePlus2, FileUp, FileDown, FileCode2 } from 'lucide-react'
+import { ChevronDown, FilePlus2, FileUp, FileDown, FileCode2, Image } from 'lucide-react'
 
 function Item({ icon: Icon, onClick, children }) {
   return (
@@ -16,7 +16,15 @@ function Item({ icon: Icon, onClick, children }) {
 }
 
 /** Menú «Archivo»: nueva red, importar y exportar (JSON propio o EPANET). */
-export default function FileMenu({ onNew, onImport, onExportJSON, onExportEpanet, busy }) {
+export default function FileMenu({
+  onNew,
+  onImport,
+  onExportJSON,
+  onExportEpanet,
+  onExportSVG,
+  onExportPNG,
+  busy,
+}) {
   const [open, setOpen] = useState(false)
   const root = useRef(null)
   const [fileInput, setFileInput] = useState(null) // ref como estado: se usa solo en manejadores
@@ -62,6 +70,12 @@ export default function FileMenu({ onNew, onImport, onExportJSON, onExportEpanet
           </Item>
           <Item icon={FileDown} onClick={run(onExportJSON)}>
             Exportar JSON
+          </Item>
+          <Item icon={Image} onClick={run(onExportSVG)}>
+            Exportar imagen (SVG)
+          </Item>
+          <Item icon={Image} onClick={run(onExportPNG)}>
+            Exportar imagen (PNG)
           </Item>
           <Item icon={FileCode2} onClick={run(onExportEpanet)}>
             Exportar a EPANET (.inp)
