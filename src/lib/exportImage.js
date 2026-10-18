@@ -4,13 +4,24 @@ import { velocity } from './hydraulics'
 const PAD = 90
 const NODE = 56
 const GLYPH = { tank: 'T', pump: 'B', valve: 'V', junction: 'N' }
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c])
+const esc = (s) =>
+  String(s).replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c],
+  )
 
 /**
  * Dibuja la red como un SVG autónomo (sin clases CSS ni fuentes externas) para
  * incluirla en informes. `statusOfPipe(pipe)` decide el color de cada tubería.
  */
-export function networkToSvg(net, { statusOfPipe = () => 'idle', nodeResult = () => null, title = 'HydroGraph AI · Red de distribución' } = {}) {
+export function networkToSvg(
+  net,
+  {
+    statusOfPipe = () => 'idle',
+    nodeResult = () => null,
+    title = 'HydroGraph AI · Red de distribución',
+  } = {},
+) {
   const xs = net.nodes.map((n) => n.x)
   const ys = net.nodes.map((n) => n.y)
   const x0 = Math.min(...xs, 0) - PAD
@@ -79,7 +90,10 @@ export function svgToPngBlob(svg, width, height, scale = 2) {
       ctx.scale(scale, scale)
       ctx.drawImage(img, 0, 0, width, height)
       URL.revokeObjectURL(url)
-      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('No se pudo generar el PNG'))), 'image/png')
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error('No se pudo generar el PNG'))),
+        'image/png',
+      )
     }
     img.onerror = () => {
       URL.revokeObjectURL(url)
