@@ -3,7 +3,7 @@ import { clearNetwork } from '../lib/storage'
 
 /** Última barrera: si algo falla al renderizar, ofrece reiniciar en lugar de dejar la pantalla en blanco. */
 export default class ErrorBoundary extends Component {
-  state = { error: null }
+  state = { error: null, componentStack: '' }
 
   static getDerivedStateFromError(error) {
     return { error }
@@ -11,6 +11,7 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('Error de interfaz:', error, info.componentStack)
+    this.setState({ componentStack: info.componentStack })
   }
 
   reset = () => {
@@ -31,6 +32,15 @@ export default class ErrorBoundary extends Component {
           <p className="font-mono text-xs text-red-300/80 break-words">
             {this.state.error.message}
           </p>
+          {this.state.componentStack && (
+            <details className="text-left text-xs text-slate-500">
+              <summary className="cursor-pointer text-center">Detalles técnicos</summary>
+              <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap font-mono">
+                {this.state.error.stack?.split('\n').slice(0, 4).join('\n')}
+                {this.state.componentStack}
+              </pre>
+            </details>
+          )}
           <div className="flex justify-center gap-2">
             <button
               onClick={() => this.setState({ error: null })}

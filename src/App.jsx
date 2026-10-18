@@ -22,7 +22,7 @@ import { parseNetwork } from './lib/parseNetwork'
 import { loadNetwork, saveNetwork } from './lib/storage'
 
 const MAX_IMPORT_BYTES = 1_000_000
-const isOffline = (err) => err.code === 'NETWORK' || err.code === 'TIMEOUT'
+const isOffline = (err) => ['NETWORK', 'TIMEOUT', 'NO_API'].includes(err.code)
 
 export default function App() {
   const toast = useToasts()
@@ -247,7 +247,7 @@ export default function App() {
       const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)
       const isRange = typing && e.target.type === 'range'
       const mod = e.ctrlKey || e.metaKey,
-        k = e.key.toLowerCase()
+        k = e.key?.toLowerCase()
       const s = shortcuts.current
       if (mod && (k === 'z' || k === 'y')) {
         if (typing && !isRange) return // deja el deshacer nativo de los campos de texto

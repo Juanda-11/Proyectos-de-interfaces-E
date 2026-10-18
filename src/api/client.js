@@ -11,6 +11,8 @@ export class ApiError extends Error {
   }
 }
 
+const NO_API_STATUS = [404, 405, 502, 503, 504]
+
 async function request(
   path,
   { method = 'POST', body, parse = 'json', timeoutMs = API_TIMEOUT_MS } = {},
@@ -34,6 +36,13 @@ async function request(
   }
   if (!res.ok) {
     const { error } = await res.json().catch(() => ({}))
+    // Respuesta que no es de nuestra API (p. ej. 404 de la plataforma): VITE_API_URL mal configurada o backend caído
+    if (!error && NO_API_STATUS.includes(res.status)) {
+      throw new ApiError(
+        'No se encontró la API en esta dirección. Revisa que VITE_API_URL apunte al backend.',
+        { status: res.status, code: 'NO_API' },
+      )
+    }
     throw new ApiError(error?.message ?? `Error ${res.status} del servidor`, {
       status: res.status,
       code: error?.code ?? 'HTTP_ERROR',
