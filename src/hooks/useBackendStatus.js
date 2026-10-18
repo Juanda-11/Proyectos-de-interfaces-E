@@ -18,7 +18,10 @@ export function useBackendStatus() {
       )
     check()
     const id = setInterval(check, POLL_MS)
-    return () => { alive = false; clearInterval(id) }
+    return () => {
+      alive = false
+      clearInterval(id)
+    }
   }, [])
   return status
 }

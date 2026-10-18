@@ -33,5 +33,8 @@ export default [
     files: ['electron/**/*.js', 'tailwind.config.js', 'postcss.config.js'],
     languageOptions: { sourceType: 'commonjs', globals: { ...globals.node } },
   },
-  { files: ['*.config.mjs', 'vitest.config.js'], languageOptions: { sourceType: 'module', globals: { ...globals.node } } },
+  {
+    files: ['*.config.mjs', 'vitest.config.js'],
+    languageOptions: { sourceType: 'module', globals: { ...globals.node } },
+  },
 ]

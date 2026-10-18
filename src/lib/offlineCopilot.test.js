@@ -32,7 +32,9 @@ describe('offlineOptimize', () => {
     expect(net.pipes.at(-1).diameter).toBe(50)
   })
   it('no cambia nada si la red ya está bien', () => {
-    expect(offlineOptimize(offlineOptimize(makeSectors(3)).network).message).toMatch(/nada que optimizar/)
+    expect(offlineOptimize(offlineOptimize(makeSectors(3)).network).message).toMatch(
+      /nada que optimizar/,
+    )
   })
 })
 

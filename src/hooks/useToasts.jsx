@@ -16,10 +16,16 @@ export function ToastProvider({ children }) {
     [dismiss],
   )
   const api = useMemo(
-    () => ({ info: (t) => push(t, 'info'), success: (t) => push(t, 'success'), error: (t) => push(t, 'error') }),
+    () => ({
+      info: (t) => push(t, 'info'),
+      success: (t) => push(t, 'success'),
+      error: (t) => push(t, 'error'),
+    }),
     [push],
   )
-  return <ToastContext.Provider value={{ toasts, dismiss, ...api }}>{children}</ToastContext.Provider>
+  return (
+    <ToastContext.Provider value={{ toasts, dismiss, ...api }}>{children}</ToastContext.Provider>
+  )
 }
 
 export function useToasts() {

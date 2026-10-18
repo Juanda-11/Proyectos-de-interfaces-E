@@ -12,4 +12,7 @@ export const pipeStatus = (p, running) => (!running ? 'idle' : velocity(p) > MAX
 
 /** Diámetro comercial mínimo (múltiplo de 25 mm) para v <= 2 m/s. */
 export const suggestDiameter = (p) =>
-  Math.max(25, Math.ceil((Math.sqrt((4 * (p.flow / 1000)) / (Math.PI * DESIGN_V)) * 1000) / 25) * 25)
+  Math.max(
+    25,
+    Math.ceil((Math.sqrt((4 * (p.flow / 1000)) / (Math.PI * DESIGN_V)) * 1000) / 25) * 25,
+  )

@@ -14,7 +14,12 @@ function Demo() {
     </>
   )
 }
-const setup = () => render(<ToastProvider><Demo /></ToastProvider>)
+const setup = () =>
+  render(
+    <ToastProvider>
+      <Demo />
+    </ToastProvider>,
+  )
 afterEach(() => vi.useRealTimers())
 
 describe('toasts', () => {

@@ -20,16 +20,28 @@ afterEach(() => vi.restoreAllMocks())
 describe('ErrorBoundary', () => {
   it('muestra los hijos si no hay error', () => {
     shouldThrow = false
-    render(<ErrorBoundary><Bomb /></ErrorBoundary>)
+    render(
+      <ErrorBoundary>
+        <Bomb />
+      </ErrorBoundary>,
+    )
     expect(screen.getByText('todo bien')).toBeInTheDocument()
   })
   it('muestra una pantalla de error con el mensaje', () => {
-    render(<ErrorBoundary><Bomb /></ErrorBoundary>)
+    render(
+      <ErrorBoundary>
+        <Bomb />
+      </ErrorBoundary>,
+    )
     expect(screen.getByRole('alert')).toHaveTextContent('Algo salió mal')
     expect(screen.getByText('boom')).toBeInTheDocument()
   })
   it('Reintentar vuelve a renderizar los hijos', async () => {
-    render(<ErrorBoundary><Bomb /></ErrorBoundary>)
+    render(
+      <ErrorBoundary>
+        <Bomb />
+      </ErrorBoundary>,
+    )
     shouldThrow = false
     await userEvent.click(screen.getByText('Reintentar'))
     expect(screen.getByText('todo bien')).toBeInTheDocument()
@@ -38,7 +50,11 @@ describe('ErrorBoundary', () => {
     const reload = vi.fn()
     vi.stubGlobal('location', { ...window.location, reload })
     saveNetwork(makeSectors(2))
-    render(<ErrorBoundary><Bomb /></ErrorBoundary>)
+    render(
+      <ErrorBoundary>
+        <Bomb />
+      </ErrorBoundary>,
+    )
     await userEvent.click(screen.getByText('Reiniciar'))
     expect(loadNetwork()).toBeNull()
     expect(reload).toHaveBeenCalled()

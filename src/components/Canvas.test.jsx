@@ -7,10 +7,22 @@ import { pipeStatus } from '../lib/hydraulics'
 const net = makeSectors(3)
 const setup = (extra = {}) => {
   const p = {
-    nodes: net.nodes, pipes: net.pipes, selected: null, tool: 'select', running: false,
-    view: { x: 0, y: 0, k: 1 }, onView: vi.fn(), snapOn: true, onToggleSnap: vi.fn(),
-    onDragStart: vi.fn(), onSelect: vi.fn(), onMove: vi.fn(), onConnect: vi.fn(), onNudge: vi.fn(),
-    statusOfPipe: (pipe) => pipeStatus(pipe, extra.running ?? false), ...extra,
+    nodes: net.nodes,
+    pipes: net.pipes,
+    selected: null,
+    tool: 'select',
+    running: false,
+    view: { x: 0, y: 0, k: 1 },
+    onView: vi.fn(),
+    snapOn: true,
+    onToggleSnap: vi.fn(),
+    onDragStart: vi.fn(),
+    onSelect: vi.fn(),
+    onMove: vi.fn(),
+    onConnect: vi.fn(),
+    onNudge: vi.fn(),
+    statusOfPipe: (pipe) => pipeStatus(pipe, extra.running ?? false),
+    ...extra,
   }
   render(<Canvas {...p} />)
   return p
@@ -40,9 +52,13 @@ describe('Canvas', () => {
   it('las flechas mueven el nodo una celda de la cuadrícula', () => {
     const p = setup()
     const t1 = net.nodes.find((n) => n.id === 'T1')
-    fireEvent.keyDown(screen.getByRole('button', { name: /^Tanque T1, tanque/ }), { key: 'ArrowRight' })
+    fireEvent.keyDown(screen.getByRole('button', { name: /^Tanque T1, tanque/ }), {
+      key: 'ArrowRight',
+    })
     expect(p.onNudge).toHaveBeenCalledWith('T1', t1.x + 20, t1.y)
-    fireEvent.keyDown(screen.getByRole('button', { name: /^Tanque T1, tanque/ }), { key: 'ArrowUp' })
+    fireEvent.keyDown(screen.getByRole('button', { name: /^Tanque T1, tanque/ }), {
+      key: 'ArrowUp',
+    })
     expect(p.onNudge).toHaveBeenLastCalledWith('T1', t1.x, t1.y - 20)
   })
   it('con la herramienta Tubería conecta dos nodos distintos', () => {
@@ -80,7 +96,12 @@ describe('Canvas', () => {
   })
   it('los botones de zoom piden un nivel mayor o menor', () => {
     const p = setup()
-    vi.spyOn(SVGElement.prototype, 'getBoundingClientRect').mockReturnValue({ width: 800, height: 600, left: 0, top: 0 })
+    vi.spyOn(SVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      width: 800,
+      height: 600,
+      left: 0,
+      top: 0,
+    })
     fireEvent.click(screen.getByLabelText('Acercar'))
     expect(p.onView.mock.calls[0][0].k).toBeCloseTo(1.25)
     fireEvent.click(screen.getByLabelText('Alejar'))

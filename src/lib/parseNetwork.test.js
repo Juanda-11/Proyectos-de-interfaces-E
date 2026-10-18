@@ -18,15 +18,50 @@ describe('parseNetwork', () => {
     ['tipo desconocido', { nodes: [{ id: 'A', type: 'x', x: 0, y: 0 }], pipes: [] }],
     ['coordenadas no numéricas', { nodes: [{ id: 'A', type: 'tank', x: '0', y: 0 }], pipes: [] }],
     ['nodo sin id', { nodes: [{ type: 'tank', x: 0, y: 0 }], pipes: [] }],
-    ['nodo repetido', { nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }, { id: 'A', type: 'tank', x: 0, y: 0 }], pipes: [] }],
-    ['tubería a nodo inexistente', { nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }], pipes: [{ id: 'p', from: 'A', to: 'Z', diameter: 50, flow: 1 }] }],
-    ['tubería a sí misma', { nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }], pipes: [{ id: 'p', from: 'A', to: 'A', diameter: 50, flow: 1 }] }],
-    ['diámetro inválido', { nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }, { id: 'B', type: 'tank', x: 0, y: 0 }], pipes: [{ id: 'p', from: 'A', to: 'B', diameter: 0, flow: 1 }] }],
+    [
+      'nodo repetido',
+      {
+        nodes: [
+          { id: 'A', type: 'tank', x: 0, y: 0 },
+          { id: 'A', type: 'tank', x: 0, y: 0 },
+        ],
+        pipes: [],
+      },
+    ],
+    [
+      'tubería a nodo inexistente',
+      {
+        nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }],
+        pipes: [{ id: 'p', from: 'A', to: 'Z', diameter: 50, flow: 1 }],
+      },
+    ],
+    [
+      'tubería a sí misma',
+      {
+        nodes: [{ id: 'A', type: 'tank', x: 0, y: 0 }],
+        pipes: [{ id: 'p', from: 'A', to: 'A', diameter: 50, flow: 1 }],
+      },
+    ],
+    [
+      'diámetro inválido',
+      {
+        nodes: [
+          { id: 'A', type: 'tank', x: 0, y: 0 },
+          { id: 'B', type: 'tank', x: 0, y: 0 },
+        ],
+        pipes: [{ id: 'p', from: 'A', to: 'B', diameter: 0, flow: 1 }],
+      },
+    ],
   ])('rechaza: %s', (_n, data) => {
     expect(parseNetwork(data)).toHaveProperty('error')
   })
   it('rechaza redes enormes', () => {
-    const nodes = Array.from({ length: 201 }, (_, i) => ({ id: `n${i}`, type: 'junction', x: 0, y: 0 }))
+    const nodes = Array.from({ length: 201 }, (_, i) => ({
+      id: `n${i}`,
+      type: 'junction',
+      x: 0,
+      y: 0,
+    }))
     expect(parseNetwork({ nodes, pipes: [] }).error).toMatch(/demasiado grande/)
   })
 })

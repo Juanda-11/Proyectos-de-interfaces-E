@@ -4,9 +4,21 @@ import userEvent from '@testing-library/user-event'
 import TopBar from './TopBar'
 
 const props = (extra = {}) => ({
-  running: false, status: 'idle', warnings: 0, busy: null, canUndo: false, canRedo: false,
-  onToggle: vi.fn(), onOptimize: vi.fn(), onUndo: vi.fn(), onRedo: vi.fn(),
-  onNew: vi.fn(), onImport: vi.fn(), onExportJSON: vi.fn(), onExportEpanet: vi.fn(), ...extra,
+  running: false,
+  status: 'idle',
+  warnings: 0,
+  busy: null,
+  canUndo: false,
+  canRedo: false,
+  onToggle: vi.fn(),
+  onOptimize: vi.fn(),
+  onUndo: vi.fn(),
+  onRedo: vi.fn(),
+  onNew: vi.fn(),
+  onImport: vi.fn(),
+  onExportJSON: vi.fn(),
+  onExportEpanet: vi.fn(),
+  ...extra,
 })
 
 describe('TopBar', () => {

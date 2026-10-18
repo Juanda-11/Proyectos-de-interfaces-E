@@ -11,7 +11,10 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { method = 'POST', body, parse = 'json', timeoutMs = API_TIMEOUT_MS } = {}) {
+async function request(
+  path,
+  { method = 'POST', body, parse = 'json', timeoutMs = API_TIMEOUT_MS } = {},
+) {
   let res
   try {
     res = await fetch(`${API_URL}${path}`, {
@@ -22,9 +25,12 @@ async function request(path, { method = 'POST', body, parse = 'json', timeoutMs 
     })
   } catch (err) {
     const timeout = err?.name === 'TimeoutError'
-    throw new ApiError(timeout ? 'El servidor tardó demasiado en responder' : 'No se pudo conectar con el servidor', {
-      code: timeout ? 'TIMEOUT' : 'NETWORK',
-    })
+    throw new ApiError(
+      timeout ? 'El servidor tardó demasiado en responder' : 'No se pudo conectar con el servidor',
+      {
+        code: timeout ? 'TIMEOUT' : 'NETWORK',
+      },
+    )
   }
   if (!res.ok) {
     const { error } = await res.json().catch(() => ({}))

@@ -2,7 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { api, ApiError } from './client'
 
 const net = { nodes: [{ id: 'A' }], pipes: [], selected: 'ignorado' }
-const json = (data, status = 200) => ({ ok: status < 400, status, json: async () => data, blob: async () => new Blob(['x']) })
+const json = (data, status = 200) => ({
+  ok: status < 400,
+  status,
+  json: async () => data,
+  blob: async () => new Blob(['x']),
+})
 
 beforeEach(() => vi.stubGlobal('fetch', vi.fn()))
 afterEach(() => vi.unstubAllGlobals())
@@ -20,7 +25,10 @@ describe('api client', () => {
   it('el copiloto incluye la orden y la red actual', async () => {
     fetch.mockResolvedValue(json({}))
     await api.copilot('auditar', net)
-    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({ prompt: 'auditar', network: { nodes: [{ id: 'A' }], pipes: [] } })
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toEqual({
+      prompt: 'auditar',
+      network: { nodes: [{ id: 'A' }], pipes: [] },
+    })
   })
 
   it('health usa GET sin cuerpo', async () => {
@@ -35,7 +43,18 @@ describe('api client', () => {
   })
 
   it('convierte errores del backend en ApiError con código y detalle', async () => {
-    fetch.mockResolvedValue(json({ error: { code: 'VALIDATION_ERROR', message: 'Datos inválidos', details: [{ path: 'nodes' }] } }, 400))
+    fetch.mockResolvedValue(
+      json(
+        {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Datos inválidos',
+            details: [{ path: 'nodes' }],
+          },
+        },
+        400,
+      ),
+    )
     const err = await api.simulate(net).catch((e) => e)
     expect(err).toBeInstanceOf(ApiError)
     expect(err).toMatchObject({ status: 400, code: 'VALIDATION_ERROR', message: 'Datos inválidos' })
@@ -43,9 +62,17 @@ describe('api client', () => {
   })
 
   it('tolera respuestas de error sin JSON', async () => {
-    fetch.mockResolvedValue({ ok: false, status: 502, json: async () => Promise.reject(new Error('html')) })
+    fetch.mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => Promise.reject(new Error('html')),
+    })
     const err = await api.simulate(net).catch((e) => e)
-    expect(err).toMatchObject({ status: 502, code: 'HTTP_ERROR', message: 'Error 502 del servidor' })
+    expect(err).toMatchObject({
+      status: 502,
+      code: 'HTTP_ERROR',
+      message: 'Error 502 del servidor',
+    })
   })
 
   it('distingue fallo de red y tiempo agotado', async () => {

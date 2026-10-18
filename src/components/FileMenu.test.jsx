@@ -4,7 +4,13 @@ import userEvent from '@testing-library/user-event'
 import FileMenu from './FileMenu'
 
 const setup = (extra = {}) => {
-  const p = { onNew: vi.fn(), onImport: vi.fn(), onExportJSON: vi.fn(), onExportEpanet: vi.fn(), ...extra }
+  const p = {
+    onNew: vi.fn(),
+    onImport: vi.fn(),
+    onExportJSON: vi.fn(),
+    onExportEpanet: vi.fn(),
+    ...extra,
+  }
   render(<FileMenu {...p} />)
   return p
 }

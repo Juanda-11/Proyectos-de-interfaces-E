@@ -21,10 +21,14 @@ describe('storage', () => {
     expect(loadNetwork()).toBeNull()
   })
   it('no falla si el almacenamiento está bloqueado', () => {
-    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('denied') })
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
     expect(saveNetwork(makeSectors(2))).toBe(false)
     spy.mockRestore()
-    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('denied') })
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('denied')
+    })
     expect(loadNetwork()).toBeNull()
     get.mockRestore()
   })

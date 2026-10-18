@@ -16,12 +16,20 @@ export default function Toolbar({ tool, onTool, onAdd }) {
         const click = () => (id === 'select' || id === 'pipe' ? onTool(id) : onAdd(id))
         return (
           <button
-            key={id} onClick={click} title={label}
+            key={id}
+            onClick={click}
+            title={label}
             className={`group w-14 py-2 flex flex-col items-center gap-1 rounded-xl text-[11px] transition ${
-              active ? 'bg-water text-white shadow-[0_0_14px_rgba(14,165,233,.4)]' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+              active
+                ? 'bg-water text-white shadow-[0_0_14px_rgba(14,165,233,.4)]'
+                : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
             }`}
           >
-            <Icon size={22} style={{ color: active ? '#fff' : color }} className="group-hover:scale-110 transition" />
+            <Icon
+              size={22}
+              style={{ color: active ? '#fff' : color }}
+              className="group-hover:scale-110 transition"
+            />
             {label}
           </button>
         )

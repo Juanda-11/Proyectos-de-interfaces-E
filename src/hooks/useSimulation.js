@@ -17,7 +17,9 @@ export function useSimulation(net, { onOffline, onError } = {}) {
   const [status, setStatus] = useState('idle')
   const callbacks = useRef({ onOffline, onError })
   const offline = useRef(false) // avisar solo al perder la conexión, no en cada recálculo
-  useEffect(() => { callbacks.current = { onOffline, onError } })
+  useEffect(() => {
+    callbacks.current = { onOffline, onError }
+  })
 
   useEffect(() => {
     if (!running) return
@@ -43,11 +45,19 @@ export function useSimulation(net, { onOffline, onError } = {}) {
         }
       }
     }, DEBOUNCE_MS)
-    return () => { cancelled = true; clearTimeout(timer) }
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [running, net])
 
   const start = useCallback(() => setRunning(true), [])
-  const stop = useCallback(() => { offline.current = false; setRunning(false); setResult(null); setStatus('idle') }, [])
+  const stop = useCallback(() => {
+    offline.current = false
+    setRunning(false)
+    setResult(null)
+    setStatus('idle')
+  }, [])
   const toggle = useCallback(() => (running ? stop() : start()), [running, start, stop])
 
   const pipeResults = useMemo(() => new Map((result?.pipes ?? []).map((p) => [p.id, p])), [result])
@@ -63,11 +73,23 @@ export function useSimulation(net, { onOffline, onError } = {}) {
     [running, pipeResults],
   )
 
-  const issues = useMemo(() => (result?.issues ?? []).filter((i) => i.severity !== 'info'), [result])
-  const localWarnings = useMemo(() => net.pipes.filter((p) => pipeStatus(p, running) === 'warn'), [net.pipes, running])
+  const issues = useMemo(
+    () => (result?.issues ?? []).filter((i) => i.severity !== 'info'),
+    [result],
+  )
+  const localWarnings = useMemo(
+    () => net.pipes.filter((p) => pipeStatus(p, running) === 'warn'),
+    [net.pipes, running],
+  )
 
   return {
-    running, status, result, issues, start, stop, toggle,
+    running,
+    status,
+    result,
+    issues,
+    start,
+    stop,
+    toggle,
     statusOfPipe,
     pipeResult: (id) => pipeResults.get(id) ?? null,
     nodeResult: (id) => nodeResults.get(id) ?? null,

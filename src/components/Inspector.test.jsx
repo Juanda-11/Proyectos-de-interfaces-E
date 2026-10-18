@@ -13,14 +13,36 @@ const result = {
 const withSim = {
   result,
   issues: [
-    { severity: 'warning', code: 'HIGH_VELOCITY', elementId: 'c2', message: 'El tramo J1→S3 circula a 4.07 m/s.', suggestion: 'Usa DN75.' },
+    {
+      severity: 'warning',
+      code: 'HIGH_VELOCITY',
+      elementId: 'c2',
+      message: 'El tramo J1→S3 circula a 4.07 m/s.',
+      suggestion: 'Usa DN75.',
+    },
     { severity: 'critical', code: 'NO_SOURCE', elementId: null, message: 'Sin tanque.' },
   ],
   pipeResult: (id) => result.pipes.find((p) => p.id === id) ?? null,
-  nodeResult: (id) => (id === 'S1' ? { pressure: 42.5, status: 'ok' } : id === 'J1' ? { pressure: 5, status: 'low' } : null),
+  nodeResult: (id) =>
+    id === 'S1'
+      ? { pressure: 42.5, status: 'ok' }
+      : id === 'J1'
+        ? { pressure: 5, status: 'low' }
+        : null,
 }
 const setup = (extra = {}) => {
-  const p = { net, selected: null, running: false, simulation: noSim, onNode: vi.fn(), onPipe: vi.fn(), onDelete: vi.fn(), onCommit: vi.fn(), onSelect: vi.fn(), ...extra }
+  const p = {
+    net,
+    selected: null,
+    running: false,
+    simulation: noSim,
+    onNode: vi.fn(),
+    onPipe: vi.fn(),
+    onDelete: vi.fn(),
+    onCommit: vi.fn(),
+    onSelect: vi.fn(),
+    ...extra,
+  }
   render(<Inspector {...p} />)
   return p
 }

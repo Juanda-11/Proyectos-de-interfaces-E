@@ -20,24 +20,39 @@ function reducer(state, action) {
         : { net: action.net, past: [], future: [] }
     case 'undo':
       if (!state.past.length) return state
-      return { net: state.past.at(-1), past: state.past.slice(0, -1), future: [state.net, ...state.future] }
+      return {
+        net: state.past.at(-1),
+        past: state.past.slice(0, -1),
+        future: [state.net, ...state.future],
+      }
     case 'redo':
       if (!state.future.length) return state
-      return { net: state.future[0], past: [...state.past, state.net], future: state.future.slice(1) }
+      return {
+        net: state.future[0],
+        past: [...state.past, state.net],
+        future: state.future.slice(1),
+      }
     default:
       return state
   }
 }
 
 export function useNetworkHistory(initial) {
-  const [state, dispatch] = useReducer(reducer, null, () => ({ net: typeof initial === 'function' ? initial() : initial, past: [], future: [] }))
+  const [state, dispatch] = useReducer(reducer, null, () => ({
+    net: typeof initial === 'function' ? initial() : initial,
+    past: [],
+    future: [],
+  }))
   return {
     net: state.net,
     canUndo: state.past.length > 0,
     canRedo: state.future.length > 0,
     checkpoint: useCallback(() => dispatch({ type: 'checkpoint' }), []),
     update: useCallback((fn) => dispatch({ type: 'update', fn }), []),
-    replace: useCallback((net, { record = true } = {}) => dispatch({ type: 'replace', net, record }), []),
+    replace: useCallback(
+      (net, { record = true } = {}) => dispatch({ type: 'replace', net, record }),
+      [],
+    ),
     undo: useCallback(() => dispatch({ type: 'undo' }), []),
     redo: useCallback(() => dispatch({ type: 'redo' }), []),
   }

@@ -10,8 +10,14 @@ const net = makeSectors(3)
 const remote = {
   summary: { status: 'warning' },
   nodes: [{ id: 'S1', pressure: 42 }],
-  pipes: [{ id: 'c2', status: 'warn', velocity: 4.07, headLoss: 46 }, { id: 'c0', status: 'ok' }],
-  issues: [{ severity: 'warning', code: 'HIGH_VELOCITY' }, { severity: 'info', code: 'LOW_VELOCITY' }],
+  pipes: [
+    { id: 'c2', status: 'warn', velocity: 4.07, headLoss: 46 },
+    { id: 'c0', status: 'ok' },
+  ],
+  issues: [
+    { severity: 'warning', code: 'HIGH_VELOCITY' },
+    { severity: 'info', code: 'LOW_VELOCITY' },
+  ],
 }
 
 beforeEach(() => {
@@ -61,7 +67,9 @@ describe('useSimulation', () => {
   it('avisa de la pérdida de conexión una sola vez aunque se recalcule', async () => {
     api.simulate.mockRejectedValue(new ApiError('sin red', { code: 'NETWORK' }))
     const onOffline = vi.fn()
-    const { result, rerender } = renderHook(({ n }) => useSimulation(n, { onOffline }), { initialProps: { n: net } })
+    const { result, rerender } = renderHook(({ n }) => useSimulation(n, { onOffline }), {
+      initialProps: { n: net },
+    })
     act(() => result.current.start())
     await waitFor(() => expect(result.current.status).toBe('offline'))
     rerender({ n: { ...net, pipes: [...net.pipes] } })
@@ -71,7 +79,9 @@ describe('useSimulation', () => {
   })
 
   it('informa errores de validación sin pasar a offline', async () => {
-    api.simulate.mockRejectedValue(new ApiError('inválido', { status: 400, code: 'VALIDATION_ERROR' }))
+    api.simulate.mockRejectedValue(
+      new ApiError('inválido', { status: 400, code: 'VALIDATION_ERROR' }),
+    )
     const onError = vi.fn()
     const { result } = renderHook(() => useSimulation(net, { onError }))
     act(() => result.current.start())
@@ -81,7 +91,9 @@ describe('useSimulation', () => {
 
   it('vuelve a simular cuando cambia la red y descarta respuestas obsoletas', async () => {
     api.simulate.mockResolvedValue(remote)
-    const { result, rerender } = renderHook(({ n }) => useSimulation(n), { initialProps: { n: net } })
+    const { result, rerender } = renderHook(({ n }) => useSimulation(n), {
+      initialProps: { n: net },
+    })
     act(() => result.current.start())
     await waitFor(() => expect(result.current.status).toBe('ok'))
     rerender({ n: { ...net, pipes: [...net.pipes] } })
@@ -94,6 +106,11 @@ describe('useSimulation', () => {
     act(() => result.current.start())
     await waitFor(() => expect(result.current.status).toBe('ok'))
     act(() => result.current.stop())
-    expect(result.current).toMatchObject({ running: false, status: 'idle', result: null, warningCount: 0 })
+    expect(result.current).toMatchObject({
+      running: false,
+      status: 'idle',
+      result: null,
+      warningCount: 0,
+    })
   })
 })

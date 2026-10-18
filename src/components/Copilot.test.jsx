@@ -30,7 +30,12 @@ describe('Copilot', () => {
   })
   it('muestra «Copiloto analizando» mientras espera y bloquea el campo', async () => {
     let resolve
-    const onSubmit = vi.fn(() => new Promise((r) => { resolve = r }))
+    const onSubmit = vi.fn(
+      () =>
+        new Promise((r) => {
+          resolve = r
+        }),
+    )
     render(<Copilot onSubmit={onSubmit} />)
     const input = await open()
     await userEvent.type(input, 'hola{Enter}')
@@ -42,7 +47,11 @@ describe('Copilot', () => {
     await waitFor(() => expect(input).toBeEnabled())
   })
   it('muestra los errores como respuesta del copiloto', async () => {
-    render(<Copilot onSubmit={vi.fn().mockRejectedValue(new Error('El servidor devolvió una red inválida'))} />)
+    render(
+      <Copilot
+        onSubmit={vi.fn().mockRejectedValue(new Error('El servidor devolvió una red inválida'))}
+      />,
+    )
     await userEvent.type(await open(), 'diseña{Enter}')
     expect(await screen.findByText(/red inválida/)).toHaveClass('text-red-200')
   })
