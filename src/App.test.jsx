@@ -14,6 +14,7 @@ vi.mock('./api/client', async (orig) => ({
   api: {
     health: vi.fn(),
     simulate: vi.fn(),
+    balance: vi.fn(),
     optimize: vi.fn(),
     copilot: vi.fn(),
     exportEpanet: vi.fn(),
@@ -219,6 +220,61 @@ describe('App', () => {
     await userEvent.click(screen.getByText('Archivo'))
     await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(PNG\)/ }))
     expect(await screen.findByText(/No se pudo exportar la imagen: sin canvas/)).toBeInTheDocument()
+  })
+
+  it('calcular caudales aplica la red del backend y arranca la simulación', async () => {
+    const net = makeSectors(3)
+    net.pipes.at(-1).flow = 4
+    api.balance.mockResolvedValue({
+      network: net,
+      changes: [{ pipeId: 'c2' }],
+      message: 'Caudales recalculados.',
+    })
+    renderApp()
+    await userEvent.click(screen.getByTitle(/Calcula los caudales/))
+    expect(await screen.findByText('Caudales recalculados.')).toBeInTheDocument()
+    expect(await screen.findByText('Detener')).toBeInTheDocument()
+  })
+
+  it('calcular caudales sin servidor lo explica', async () => {
+    api.balance.mockRejectedValue(new ApiError('x', { code: 'NETWORK' }))
+    renderApp()
+    await userEvent.click(screen.getByTitle(/Calcula los caudales/))
+    expect(await screen.findByText(/requiere conexión/)).toBeInTheDocument()
+  })
+
+  it('exporta el informe Markdown con la simulación disponible', async () => {
+    renderApp()
+    await userEvent.click(screen.getByText('Simular Flujo'))
+    await screen.findByText('Usa DN75.')
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /informe/ }))
+    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), 'hydrograph-informe.md')
+    const text = await vi.mocked(downloadBlob).mock.calls[0][0].text()
+    expect(text).toContain('## Problemas detectados')
+    expect(text).toContain('Usa DN75.')
+  })
+
+  it('sin simulación avisa de que el informe no incluye presiones', async () => {
+    renderApp()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /informe/ }))
+    expect(await screen.findByText(/sin presiones/)).toBeInTheDocument()
+  })
+
+  it('el inspector se puede ocultar y mostrar', async () => {
+    renderApp()
+    expect(screen.getByRole('complementary', { name: 'Inspector' })).toBeInTheDocument()
+    await userEvent.click(screen.getByLabelText('Ocultar inspector'))
+    expect(screen.queryByRole('complementary', { name: 'Inspector' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByLabelText('Mostrar inspector'))
+    expect(screen.getByRole('complementary', { name: 'Inspector' })).toBeInTheDocument()
+  })
+
+  it('el pie indica el proveedor de IA activo', async () => {
+    api.health.mockResolvedValue({ status: 'ok', ai: 'gemini-2.5-flash', provider: 'gemini' })
+    renderApp()
+    expect(await screen.findByText(/IA Gemini gemini-2.5-flash/)).toBeInTheDocument()
   })
 
   it('el copiloto puede reemplazar la red por una diseñada', async () => {
