@@ -16,6 +16,7 @@ export function useSimulation(net, { onOffline, onError } = {}) {
   const [result, setResult] = useState(null)
   const [status, setStatus] = useState('idle')
   const callbacks = useRef({ onOffline, onError })
+  const offline = useRef(false) // avisar solo al perder la conexión, no en cada recálculo
   useEffect(() => { callbacks.current = { onOffline, onError } })
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function useSimulation(net, { onOffline, onError } = {}) {
       try {
         const data = await api.simulate(net)
         if (cancelled) return
+        offline.current = false
         setResult(data)
         setStatus('ok')
       } catch (err) {
@@ -33,7 +35,8 @@ export function useSimulation(net, { onOffline, onError } = {}) {
         setResult(null)
         if (err.code === 'NETWORK' || err.code === 'TIMEOUT') {
           setStatus('offline')
-          callbacks.current.onOffline?.(err)
+          if (!offline.current) callbacks.current.onOffline?.(err)
+          offline.current = true
         } else {
           setStatus('error')
           callbacks.current.onError?.(err)
@@ -44,7 +47,7 @@ export function useSimulation(net, { onOffline, onError } = {}) {
   }, [running, net])
 
   const start = useCallback(() => setRunning(true), [])
-  const stop = useCallback(() => { setRunning(false); setResult(null); setStatus('idle') }, [])
+  const stop = useCallback(() => { offline.current = false; setRunning(false); setResult(null); setStatus('idle') }, [])
   const toggle = useCallback(() => (running ? stop() : start()), [running, start, stop])
 
   const pipeResults = useMemo(() => new Map((result?.pipes ?? []).map((p) => [p.id, p])), [result])

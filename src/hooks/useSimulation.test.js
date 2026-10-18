@@ -58,6 +58,18 @@ describe('useSimulation', () => {
     expect(result.current.statusOfPipe(net.pipes.at(-1))).toBe('warn')
   })
 
+  it('avisa de la pérdida de conexión una sola vez aunque se recalcule', async () => {
+    api.simulate.mockRejectedValue(new ApiError('sin red', { code: 'NETWORK' }))
+    const onOffline = vi.fn()
+    const { result, rerender } = renderHook(({ n }) => useSimulation(n, { onOffline }), { initialProps: { n: net } })
+    act(() => result.current.start())
+    await waitFor(() => expect(result.current.status).toBe('offline'))
+    rerender({ n: { ...net, pipes: [...net.pipes] } })
+    await waitFor(() => expect(api.simulate).toHaveBeenCalledTimes(2))
+    await waitFor(() => expect(result.current.status).toBe('offline'))
+    expect(onOffline).toHaveBeenCalledTimes(1)
+  })
+
   it('informa errores de validación sin pasar a offline', async () => {
     api.simulate.mockRejectedValue(new ApiError('inválido', { status: 400, code: 'VALIDATION_ERROR' }))
     const onError = vi.fn()
