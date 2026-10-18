@@ -5,6 +5,7 @@ import App from './App'
 import { ToastProvider } from './hooks/useToasts'
 import { ApiError, api } from './api/client'
 import { downloadBlob } from './lib/download'
+import { svgToPngBlob } from './lib/exportImage'
 import { makeSectors } from './lib/network'
 import { loadNetwork, saveNetwork } from './lib/storage'
 
@@ -18,6 +19,7 @@ vi.mock('./api/client', async (orig) => ({
     exportEpanet: vi.fn(),
   },
 }))
+vi.mock('./lib/exportImage', async (orig) => ({ ...(await orig()), svgToPngBlob: vi.fn() }))
 vi.mock('./lib/download', () => ({ downloadBlob: vi.fn(), downloadJSON: vi.fn() }))
 
 const simResult = {
@@ -194,6 +196,29 @@ describe('App', () => {
     await userEvent.click(screen.getByText('Archivo'))
     await userEvent.click(screen.getByRole('menuitem', { name: /EPANET/ }))
     expect(await screen.findByText(/requiere conexión/)).toBeInTheDocument()
+  })
+
+  it('exporta el diagrama como SVG', async () => {
+    renderApp()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(SVG\)/ }))
+    expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), 'hydrograph-red.svg')
+    const blob = vi.mocked(downloadBlob).mock.calls[0][0]
+    expect(await blob.text()).toContain('Sector 3')
+  })
+
+  it('exporta PNG y, si falla la rasterización, muestra el error', async () => {
+    vi.mocked(svgToPngBlob).mockResolvedValueOnce(new Blob(['png']))
+    renderApp()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(PNG\)/ }))
+    await waitFor(() =>
+      expect(downloadBlob).toHaveBeenCalledWith(expect.any(Blob), 'hydrograph-red.png'),
+    )
+    vi.mocked(svgToPngBlob).mockRejectedValueOnce(new Error('sin canvas'))
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(PNG\)/ }))
+    expect(await screen.findByText(/No se pudo exportar la imagen: sin canvas/)).toBeInTheDocument()
   })
 
   it('el copiloto puede reemplazar la red por una diseñada', async () => {

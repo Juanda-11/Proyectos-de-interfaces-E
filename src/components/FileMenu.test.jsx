@@ -9,6 +9,8 @@ const setup = (extra = {}) => {
     onImport: vi.fn(),
     onExportJSON: vi.fn(),
     onExportEpanet: vi.fn(),
+    onExportSVG: vi.fn(),
+    onExportPNG: vi.fn(),
     ...extra,
   }
   render(<FileMenu {...p} />)
@@ -22,6 +24,15 @@ describe('FileMenu', () => {
     await userEvent.click(screen.getByRole('menuitem', { name: /Exportar JSON/ }))
     expect(p.onExportJSON).toHaveBeenCalled()
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+  it('ofrece exportar la imagen en SVG y PNG', async () => {
+    const p = setup()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /SVG/ }))
+    expect(p.onExportSVG).toHaveBeenCalled()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /PNG/ }))
+    expect(p.onExportPNG).toHaveBeenCalled()
   })
   it('se cierra con Escape y al hacer clic fuera', async () => {
     setup()

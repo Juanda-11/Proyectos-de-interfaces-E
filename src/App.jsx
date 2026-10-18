@@ -12,6 +12,7 @@ import { useSimulation } from './hooks/useSimulation'
 import { useToasts } from './hooks/useToasts'
 import { META } from './lib/componentTypes'
 import { downloadBlob, downloadJSON } from './lib/download'
+import { networkToSvg, svgToPngBlob } from './lib/exportImage'
 import { offlineCopilot, offlineOptimize } from './lib/offlineCopilot'
 import { makeSectors, newId } from './lib/network'
 import { parseNetwork } from './lib/parseNetwork'
@@ -120,6 +121,21 @@ export default function App() {
     toast.success(
       `Red importada: ${next.nodes.length} componentes y ${next.pipes.length} tuberías.`,
     )
+  }
+  const diagram = () =>
+    networkToSvg(net, { statusOfPipe: sim.statusOfPipe, nodeResult: sim.nodeResult })
+  const exportSVG = () => {
+    downloadBlob(new Blob([diagram().svg], { type: 'image/svg+xml' }), 'hydrograph-red.svg')
+    toast.success('Diagrama exportado como hydrograph-red.svg')
+  }
+  const exportPNG = async () => {
+    try {
+      const { svg, width, height } = diagram()
+      downloadBlob(await svgToPngBlob(svg, width, height), 'hydrograph-red.png')
+      toast.success('Diagrama exportado como hydrograph-red.png')
+    } catch (err) {
+      toast.error(`No se pudo exportar la imagen: ${err.message}`)
+    }
   }
   const exportEpanet = async () => {
     setBusy('export')
@@ -230,6 +246,8 @@ export default function App() {
         onImport={importFile}
         onExportJSON={exportJSON}
         onExportEpanet={exportEpanet}
+        onExportSVG={exportSVG}
+        onExportPNG={exportPNG}
       />
       <div className="flex flex-1 min-h-0">
         <Toolbar tool={tool} onTool={setTool} onAdd={addNode} />
