@@ -140,7 +140,7 @@ export default function Canvas({
             return (
               <g
                 key={n.id} transform={`translate(${n.x - 28},${n.y - 28})`} role="button" tabIndex={0}
-                aria-label={`${m.label} ${n.name}${typeof res?.pressure === 'number' ? `, ${res.pressure} metros de columna de agua` : ''}`} aria-pressed={sel}
+                aria-label={`${n.name}, ${m.label.toLowerCase()}${typeof res?.pressure === 'number' ? `, ${res.pressure} metros de columna de agua` : ''}`} aria-pressed={sel}
                 onPointerDown={(e) => down(e, n)} onKeyDown={(e) => nodeKey(e, n)} className="cursor-grab active:cursor-grabbing"
               >
                 <rect width="56" height="56" rx="14" fill="#1E293B" stroke={sel || first === n.id ? '#38BDF8' : bad ? '#F97316' : m.color} strokeWidth={sel ? 2.5 : 1.5} style={{ filter: `drop-shadow(0 0 8px ${m.color}66)` }} />
