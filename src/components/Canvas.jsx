@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
-import { Plus, Minus, Maximize, Grid3x3 } from 'lucide-react'
+import { Plus, Minus, Scan, Grid3x3, Magnet, Maximize2, Minimize2 } from 'lucide-react'
+import { fitView } from '../lib/view'
+import { useFullscreen } from '../hooks/useFullscreen'
 import { META } from '../lib/componentTypes'
 import { velocity, velocityTier } from '../lib/hydraulics'
 import { TIER_COLORS } from '../lib/tiers'
@@ -7,6 +9,8 @@ import { TIER_COLORS } from '../lib/tiers'
 const GRID = 20
 const ZOOM_BTN =
   'w-8 h-8 grid place-items-center rounded-lg text-slate-300 hover:bg-white/10 transition'
+const toggleBtn = (on) =>
+  `w-8 h-8 grid place-items-center rounded-lg transition ${on ? 'bg-water text-white' : 'text-slate-400 hover:bg-white/10'}`
 const snap = (v) => Math.round(v / GRID) * GRID
 /** Contorno del color del fondo para que las etiquetas se lean sobre las tuberías */
 const HALO = { paintOrder: 'stroke', stroke: '#0F172A', strokeWidth: 3, strokeLinejoin: 'round' }
@@ -22,6 +26,8 @@ export default function Canvas({
   onView,
   snapOn,
   onToggleSnap,
+  gridOn = true,
+  onToggleGrid = () => {},
   onDragStart,
   onSelect,
   onMove,
@@ -37,6 +43,11 @@ export default function Canvas({
   const zoomTo = (k, sx, sy) => {
     k = Math.min(3, Math.max(0.3, k))
     onView({ k, x: sx - ((sx - view.x) * k) / view.k, y: sy - ((sy - view.y) * k) / view.k })
+  }
+  const fullscreen = useFullscreen()
+  const fit = () => {
+    const r = svg.current.getBoundingClientRect()
+    onView(fitView(nodes, r.width, r.height))
   }
   const zoomBy = (factor) => {
     const r = svg.current.getBoundingClientRect()
@@ -132,7 +143,7 @@ export default function Canvas({
           </pattern>
         </defs>
         <g transform={`translate(${view.x},${view.y}) scale(${view.k})`}>
-          <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#major)" />
+          {gridOn && <rect x="-6000" y="-6000" width="12000" height="12000" fill="url(#major)" />}
 
           {pipes.map((p) => {
             const a = byId[p.from],
@@ -300,22 +311,42 @@ export default function Canvas({
           <Minus size={16} />
         </button>
         <button
-          title="Restablecer vista"
-          aria-label="Restablecer vista"
-          onClick={() => onView({ x: 0, y: 0, k: 1 })}
+          title="Encuadrar toda la red"
+          aria-label="Encuadrar toda la red"
+          onClick={fit}
           className={ZOOM_BTN}
         >
-          <Maximize size={16} />
+          <Scan size={16} />
         </button>
         <button
-          title="Ajuste a cuadrícula"
-          aria-label="Ajuste a cuadrícula"
-          aria-pressed={snapOn}
-          onClick={onToggleSnap}
-          className={`w-8 h-8 grid place-items-center rounded-lg transition ${snapOn ? 'bg-water text-white' : 'text-slate-400 hover:bg-white/10'}`}
+          title="Mostrar cuadrícula"
+          aria-label="Mostrar cuadrícula"
+          aria-pressed={gridOn}
+          onClick={onToggleGrid}
+          className={toggleBtn(gridOn)}
         >
           <Grid3x3 size={16} />
         </button>
+        <button
+          title="Imán: ajustar los nodos a la cuadrícula al moverlos"
+          aria-label="Ajuste a cuadrícula"
+          aria-pressed={snapOn}
+          onClick={onToggleSnap}
+          className={toggleBtn(snapOn)}
+        >
+          <Magnet size={16} />
+        </button>
+        {fullscreen.supported && (
+          <button
+            title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            aria-pressed={fullscreen.active}
+            onClick={fullscreen.toggle}
+            className={ZOOM_BTN}
+          >
+            {fullscreen.active ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        )}
       </div>
     </>
   )
