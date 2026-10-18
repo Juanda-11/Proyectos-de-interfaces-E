@@ -20,9 +20,8 @@ Primera versión de entrega. Frontend separado del backend.
 - Vite 7, plugin de React 5 y Electron actualizados.
 
 ### Corregido
-- Borrar con `Retroceso` mientras se editaba un campo o se movía un slider eliminaba el elemento seleccionado.
+- Pulsar `Retroceso` o `Supr` con un slider del inspector enfocado eliminaba el elemento seleccionado.
 - La etiqueta «Nódulo» ahora es «Nodo».
-- Identificadores de nodos y tuberías con colisiones aleatorias poco probables pero posibles.
 - Efectos y lecturas de refs durante el render señalados por las reglas de React.
 
 ## 0.7.0
