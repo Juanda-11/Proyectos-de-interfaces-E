@@ -1,1 +1,10 @@
 node_modules/
+dist/
+dist-electron/
+.env
+.env.*
+!.env.example
+coverage/
+.vercel/
+*.log
+.DS_Store
