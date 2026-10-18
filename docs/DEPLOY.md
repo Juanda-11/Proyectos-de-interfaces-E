@@ -11,10 +11,10 @@ Navegador ──► frontend (Vercel, estático)  ──VITE_API_URL──►  b
 1. Vercel → **Add New → Project** → importa el repositorio del backend. Preset: _Other_. No hay comando de build.
 2. Variables de entorno (_Settings → Environment Variables_):
 
-   | Variable            | Valor                                                                                                                 |
-   | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-   | `CORS_ORIGINS`      | La URL del frontend, p. ej. `https://hydrograph-ai.vercel.app` (varias separadas por comas). Se completa en el paso 3 |
-   | `ANTHROPIC_API_KEY` | _(Opcional)_ clave para que el copiloto use Claude. Sin ella funciona el motor por reglas                             |
+   | Variable         | Valor                                                                                                                                                         |
+   | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `CORS_ORIGINS`   | La URL del frontend, p. ej. `https://hydrograph-ai.vercel.app` (varias separadas por comas). Se completa en el paso 3                                         |
+   | `GEMINI_API_KEY` | _(Opcional, gratuita)_ clave de [Google AI Studio](https://aistudio.google.com/apikey) para que el copiloto use Gemini. Sin ella funciona el motor por reglas |
 
 3. Despliega y comprueba `https://<backend>.vercel.app/api/health`: debe responder `{"status":"ok", ...}`.
 
