@@ -7,6 +7,7 @@ import {
   Undo2,
   Redo2,
   Wand2,
+  Scale,
   Loader2,
   WifiOff,
 } from 'lucide-react'
@@ -18,6 +19,7 @@ export default function TopBar({
   warnings,
   onToggle,
   onOptimize,
+  onBalance,
   busy,
   canUndo,
   canRedo,
@@ -81,6 +83,19 @@ export default function TopBar({
           ))}
         </div>
         <FileMenu busy={busy} {...files} />
+        <button
+          onClick={onBalance}
+          disabled={busy}
+          title="Calcula los caudales de cada tramo a partir de las demandas de los nodos"
+          className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-sm border border-line text-slate-300 hover:bg-white/5 disabled:opacity-50 transition"
+        >
+          {busy === 'balance' ? (
+            <Loader2 size={15} className="animate-spin" />
+          ) : (
+            <Scale size={15} />
+          )}{' '}
+          <span className="hidden xl:inline">Caudales</span>
+        </button>
         <button
           onClick={onOptimize}
           disabled={busy}
