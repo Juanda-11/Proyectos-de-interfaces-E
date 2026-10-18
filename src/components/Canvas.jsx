@@ -4,6 +4,7 @@ import { META } from '../lib/componentTypes'
 import { pipeStatus } from '../lib/hydraulics'
 
 const GRID = 20
+const ZOOM_BTN = 'w-8 h-8 grid place-items-center rounded-lg text-slate-300 hover:bg-white/10 transition'
 const snap = (v) => Math.round(v / GRID) * GRID
 
 export default function Canvas({ nodes, pipes, selected, tool, running, view, onView, snapOn, onToggleSnap, onDragStart, onSelect, onMove, onConnect }) {
@@ -15,7 +16,10 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
     k = Math.min(3, Math.max(0.3, k))
     onView({ k, x: sx - ((sx - view.x) * k) / view.k, y: sy - ((sy - view.y) * k) / view.k })
   }
-  const center = () => { const r = svg.current.getBoundingClientRect(); return [r.width / 2, r.height / 2] }
+  const zoomBy = (factor) => {
+    const r = svg.current.getBoundingClientRect()
+    zoomTo(view.k * factor, r.width / 2, r.height / 2)
+  }
   const [first, setFirst] = useState(null) // primer nodo elegido con la herramienta Tubería
   useEffect(() => setFirst(null), [tool])
 
@@ -121,14 +125,10 @@ export default function Canvas({ nodes, pipes, selected, tool, running, view, on
         </div>
       )}
       <div className="absolute bottom-6 right-4 flex flex-col gap-1 p-1 rounded-xl bg-panel/90 border border-line">
-        {[
-          [Plus, 'Acercar', () => zoomTo(view.k * 1.25, ...center())],
-          [Minus, 'Alejar', () => zoomTo(view.k / 1.25, ...center())],
-          [Maximize, 'Restablecer vista', () => onView({ x: 0, y: 0, k: 1 })],
-        ].map(([Icon, t, fn]) => (
-          <button key={t} title={t} onClick={fn} className="w-8 h-8 grid place-items-center rounded-lg text-slate-300 hover:bg-white/10 transition"><Icon size={16} /></button>
-        ))}
-        <button title="Ajuste a cuadrícula" onClick={onToggleSnap} className={`w-8 h-8 grid place-items-center rounded-lg transition ${snapOn ? 'bg-water text-white' : 'text-slate-400 hover:bg-white/10'}`}><Grid3x3 size={16} /></button>
+        <button title="Acercar" aria-label="Acercar" onClick={() => zoomBy(1.25)} className={ZOOM_BTN}><Plus size={16} /></button>
+        <button title="Alejar" aria-label="Alejar" onClick={() => zoomBy(1 / 1.25)} className={ZOOM_BTN}><Minus size={16} /></button>
+        <button title="Restablecer vista" aria-label="Restablecer vista" onClick={() => onView({ x: 0, y: 0, k: 1 })} className={ZOOM_BTN}><Maximize size={16} /></button>
+        <button title="Ajuste a cuadrícula" aria-label="Ajuste a cuadrícula" aria-pressed={snapOn} onClick={onToggleSnap} className={`w-8 h-8 grid place-items-center rounded-lg transition ${snapOn ? 'bg-water text-white' : 'text-slate-400 hover:bg-white/10'}`}><Grid3x3 size={16} /></button>
       </div>
     </>
   )
