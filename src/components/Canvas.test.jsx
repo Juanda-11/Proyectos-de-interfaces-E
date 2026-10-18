@@ -82,6 +82,18 @@ describe('Canvas', () => {
     expect(screen.getByRole('button', { name: /Sector 3.*velocidad excesiva/ })).toBeInTheDocument()
     expect(screen.getAllByText(/m\/s/).length).toBeGreaterThan(0)
   })
+  it('con la red vacía muestra una guía', () => {
+    setup({ nodes: [], pipes: [] })
+    expect(screen.getByText(/lienzo está vacío/)).toBeInTheDocument()
+  })
+  it('colorea de ámbar las tuberías en atención al simular', () => {
+    const caution = {
+      nodes: net.nodes,
+      pipes: net.pipes.map((p) => (p.id === 'c0' ? { ...p, diameter: 50 } : p)),
+    }
+    setup({ ...caution, running: true })
+    expect(document.querySelectorAll('stop[stop-color="#FACC15"]').length).toBe(1)
+  })
   it('muestra la presión calculada de los nodos', () => {
     setup({ nodeResult: (id) => (id === 'S3' ? { pressure: 13.3, status: 'ok' } : null) })
     expect(screen.getByText('13.3 m.c.a.')).toBeInTheDocument()

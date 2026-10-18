@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0
+
+- **Gemini** como proveedor de IA gratuito (backend); el pie de página indica el proveedor activo.
+- **Caudales**: cálculo de caudales a partir de las demandas (`/api/balance`).
+- **Informe técnico** en Markdown.
+- Diseño: tuberías coloreadas por velocidad (normal / atención / excesiva), leyenda plegable, inspector plegable y guía en el lienzo vacío.
+
 ## 1.0.0
 
 Primera versión de entrega. Frontend separado del backend.

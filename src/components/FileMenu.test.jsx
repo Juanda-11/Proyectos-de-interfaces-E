@@ -11,6 +11,7 @@ const setup = (extra = {}) => {
     onExportEpanet: vi.fn(),
     onExportSVG: vi.fn(),
     onExportPNG: vi.fn(),
+    onExportReport: vi.fn(),
     ...extra,
   }
   render(<FileMenu {...p} />)
@@ -33,6 +34,12 @@ describe('FileMenu', () => {
     await userEvent.click(screen.getByText('Archivo'))
     await userEvent.click(screen.getByRole('menuitem', { name: /PNG/ }))
     expect(p.onExportPNG).toHaveBeenCalled()
+  })
+  it('ofrece exportar el informe', async () => {
+    const p = setup()
+    await userEvent.click(screen.getByText('Archivo'))
+    await userEvent.click(screen.getByRole('menuitem', { name: /informe/ }))
+    expect(p.onExportReport).toHaveBeenCalled()
   })
   it('se cierra con Escape y al hacer clic fuera', async () => {
     setup()

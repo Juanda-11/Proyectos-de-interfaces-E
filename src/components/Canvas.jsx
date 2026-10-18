@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { Plus, Minus, Maximize, Grid3x3 } from 'lucide-react'
 import { META } from '../lib/componentTypes'
-import { velocity } from '../lib/hydraulics'
+import { velocity, velocityTier } from '../lib/hydraulics'
+import { TIER_COLORS } from '../lib/tiers'
 
 const GRID = 20
 const ZOOM_BTN =
@@ -139,6 +140,8 @@ export default function Canvas({
             if (!a || !b) return null
             const st = statusOfPipe(p)
             const warn = st === 'warn'
+            const tier = warn ? 'warn' : running ? velocityTier(p) : 'ok'
+            const [c0, c1] = TIER_COLORS[tier]
             const w = Math.max(5, p.diameter / 14)
             const sel = selected?.kind === 'pipe' && selected.id === p.id
             const l = { x1: a.x, y1: a.y, x2: b.x, y2: b.y, strokeLinecap: 'round' }
@@ -170,8 +173,8 @@ export default function Canvas({
                   x2={b.x}
                   y2={b.y}
                 >
-                  <stop offset="0" stopColor={warn ? '#F97316' : '#0EA5E9'} />
-                  <stop offset="1" stopColor={warn ? '#EF4444' : '#2563EB'} />
+                  <stop offset="0" stopColor={c0} />
+                  <stop offset="1" stopColor={c1} />
                 </linearGradient>
                 {sel && <line {...l} stroke="#38BDF8" strokeOpacity=".3" strokeWidth={w + 12} />}
                 <line {...l} stroke="#0B1220" strokeWidth={w + 6} />
@@ -195,7 +198,7 @@ export default function Canvas({
                   x={(a.x + b.x) / 2}
                   y={(a.y + b.y) / 2 - w - 8}
                   textAnchor="middle"
-                  className={`text-[10px] font-mono select-none ${warn ? 'fill-orange-300' : 'fill-slate-400'}`}
+                  className={`text-[10px] font-mono select-none ${warn ? 'fill-orange-300' : tier === 'caution' ? 'fill-amber-300' : 'fill-slate-400'}`}
                   style={HALO}
                 >
                   DN{p.diameter}
@@ -261,6 +264,16 @@ export default function Canvas({
           })}
         </g>
       </svg>
+      {nodes.length === 0 && (
+        <div className="absolute inset-0 grid place-items-center pointer-events-none">
+          <p className="max-w-xs text-center text-sm text-slate-400">
+            El lienzo está vacío. Añade un tanque desde la paleta o pide una red al copiloto{' '}
+            <kbd className="px-1.5 py-0.5 rounded bg-panel border border-line text-[11px] font-mono">
+              Ctrl K
+            </kbd>
+          </p>
+        </div>
+      )}
       {tool === 'pipe' && (
         <div
           className="absolute top-3 left-3 px-3 py-1.5 rounded-lg bg-panel/90 border border-line text-xs text-sky-300"

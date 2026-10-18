@@ -11,6 +11,7 @@ const props = (extra = {}) => ({
   canUndo: false,
   canRedo: false,
   onToggle: vi.fn(),
+  onBalance: vi.fn(),
   onOptimize: vi.fn(),
   onUndo: vi.fn(),
   onRedo: vi.fn(),
@@ -56,6 +57,14 @@ describe('TopBar', () => {
     render(<TopBar {...props({ busy: 'optimize' })} />)
     expect(screen.getByText('Optimizar').closest('button')).toBeDisabled()
     expect(screen.getByText('Archivo').closest('button')).toBeDisabled()
+  })
+  it('el botón de caudales dispara el balance y se bloquea mientras trabaja', async () => {
+    const p = props()
+    const { rerender } = render(<TopBar {...p} />)
+    await userEvent.click(screen.getByTitle(/Calcula los caudales/))
+    expect(p.onBalance).toHaveBeenCalled()
+    rerender(<TopBar {...props({ busy: 'balance' })} />)
+    expect(screen.getByTitle(/Calcula los caudales/)).toBeDisabled()
   })
   it('el botón Optimizar dispara la acción', async () => {
     const p = props()

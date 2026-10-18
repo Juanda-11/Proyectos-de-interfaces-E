@@ -49,6 +49,7 @@ const payload = ({ nodes, pipes }) => ({ nodes, pipes })
 export const api = {
   health: () => request('/api/health', { method: 'GET', timeoutMs: 5000 }),
   simulate: (net) => request('/api/simulate', { body: payload(net) }),
+  balance: (net) => request('/api/balance', { body: payload(net) }),
   optimize: (net) => request('/api/optimize', { body: payload(net) }),
   copilot: (prompt, net) => request('/api/copilot', { body: { prompt, network: payload(net) } }),
   exportEpanet: (net) => request('/api/export/epanet', { body: payload(net), parse: 'blob' }),

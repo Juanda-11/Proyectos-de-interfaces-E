@@ -10,10 +10,16 @@ beforeEach(() => {
 
 describe('useBackendStatus', () => {
   it('empieza comprobando y pasa a online con el motor de IA', async () => {
-    api.health.mockResolvedValue({ status: 'ok', ai: 'claude-haiku-5-5' })
+    api.health.mockResolvedValue({ status: 'ok', ai: 'gemini-2.5-flash', provider: 'gemini' })
     const { result } = renderHook(() => useBackendStatus())
     expect(result.current.state).toBe('checking')
-    await waitFor(() => expect(result.current).toEqual({ state: 'online', ai: 'claude-haiku-5-5' }))
+    await waitFor(() =>
+      expect(result.current).toEqual({
+        state: 'online',
+        ai: 'gemini-2.5-flash',
+        provider: 'gemini',
+      }),
+    )
   })
   it('pasa a offline si falla', async () => {
     api.health.mockRejectedValue(new Error('x'))

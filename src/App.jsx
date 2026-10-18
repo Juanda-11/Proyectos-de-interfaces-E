@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { PanelRightClose, PanelRightOpen } from 'lucide-react'
 import TopBar from './components/TopBar'
 import Toolbar from './components/Toolbar'
 import Canvas from './components/Canvas'
 import Inspector from './components/Inspector'
 import Copilot from './components/Copilot'
 import Toasts from './components/Toasts'
+import Legend from './components/Legend'
 import { api } from './api/client'
 import { useBackendStatus } from './hooks/useBackendStatus'
 import { useNetworkHistory } from './hooks/useNetworkHistory'
@@ -13,6 +15,7 @@ import { useToasts } from './hooks/useToasts'
 import { META } from './lib/componentTypes'
 import { downloadBlob, downloadJSON } from './lib/download'
 import { networkToSvg, svgToPngBlob } from './lib/exportImage'
+import { buildReport } from './lib/report'
 import { offlineCopilot, offlineOptimize } from './lib/offlineCopilot'
 import { makeSectors, newId } from './lib/network'
 import { parseNetwork } from './lib/parseNetwork'
@@ -30,7 +33,8 @@ export default function App() {
   const [tool, setTool] = useState('select')
   const [view, setView] = useState({ x: 0, y: 0, k: 1 })
   const [snapOn, setSnapOn] = useState(true)
-  const [busy, setBusy] = useState(null) // 'optimize' | 'export'
+  const [busy, setBusy] = useState(null) // 'optimize' | 'balance' | 'export'
+  const [inspectorOpen, setInspectorOpen] = useState(true)
   const backend = useBackendStatus()
   const sim = useSimulation(net, {
     onOffline: () =>
@@ -137,6 +141,15 @@ export default function App() {
       toast.error(`No se pudo exportar la imagen: ${err.message}`)
     }
   }
+  const exportReport = () => {
+    const md = buildReport(net, { result: sim.result })
+    downloadBlob(new Blob([md], { type: 'text/markdown;charset=utf-8' }), 'hydrograph-informe.md')
+    toast.success(
+      sim.result
+        ? 'Informe exportado como hydrograph-informe.md'
+        : 'Informe exportado sin presiones: simula antes para incluirlas.',
+    )
+  }
   const exportEpanet = async () => {
     setBusy('export')
     try {
@@ -159,6 +172,24 @@ export default function App() {
   }
 
   // --- IA ---
+  const balance = async () => {
+    setBusy('balance')
+    try {
+      const r = await api.balance(net)
+      if (r.changes.length) load(parseNetwork(r.network).net ?? r.network)
+      sim.start()
+      toast[r.changes.length ? 'success' : 'info'](r.message)
+    } catch (err) {
+      toast.error(
+        isOffline(err)
+          ? 'Calcular caudales requiere conexión con el servidor.'
+          : `No se pudo balancear: ${err.message}`,
+      )
+    } finally {
+      setBusy(null)
+    }
+  }
+
   const optimize = async () => {
     setBusy('optimize')
     try {
@@ -238,6 +269,7 @@ export default function App() {
         busy={busy}
         onToggle={sim.toggle}
         onOptimize={optimize}
+        onBalance={balance}
         canUndo={canUndo}
         canRedo={canRedo}
         onUndo={undo}
@@ -248,6 +280,7 @@ export default function App() {
         onExportEpanet={exportEpanet}
         onExportSVG={exportSVG}
         onExportPNG={exportPNG}
+        onExportReport={exportReport}
       />
       <div className="flex flex-1 min-h-0">
         <Toolbar tool={tool} onTool={setTool} onAdd={addNode} />
@@ -270,19 +303,31 @@ export default function App() {
             onNudge={nudgeNode}
             onConnect={connect}
           />
+          <Legend running={sim.running} />
+          <button
+            onClick={() => setInspectorOpen((o) => !o)}
+            aria-label={inspectorOpen ? 'Ocultar inspector' : 'Mostrar inspector'}
+            aria-pressed={inspectorOpen}
+            title={inspectorOpen ? 'Ocultar inspector' : 'Mostrar inspector'}
+            className="absolute top-3 right-4 w-8 h-8 grid place-items-center rounded-lg bg-panel/90 border border-line text-slate-300 hover:bg-white/10 transition"
+          >
+            {inspectorOpen ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
+          </button>
           <Copilot onSubmit={askCopilot} />
         </main>
-        <Inspector
-          net={net}
-          selected={selected}
-          running={sim.running}
-          simulation={sim}
-          onNode={updateNode}
-          onPipe={updatePipe}
-          onDelete={remove}
-          onCommit={checkpoint}
-          onSelect={setSelected}
-        />
+        {inspectorOpen && (
+          <Inspector
+            net={net}
+            selected={selected}
+            running={sim.running}
+            simulation={sim}
+            onNode={updateNode}
+            onPipe={updatePipe}
+            onDelete={remove}
+            onCommit={checkpoint}
+            onSelect={setSelected}
+          />
+        )}
       </div>
       <footer className="h-6 shrink-0 flex items-center gap-4 px-4 bg-panel border-t border-line font-mono text-[11px] text-slate-400">
         <span>Zoom {Math.round(view.k * 100)}%</span>
@@ -300,10 +345,12 @@ export default function App() {
   )
 }
 
-function BackendBadge({ state, ai }) {
+const PROVIDERS = { gemini: 'Gemini', anthropic: 'Claude' }
+
+function BackendBadge({ state, ai, provider }) {
   const label = {
     checking: 'Conectando…',
-    online: `Servidor conectado · ${ai && ai !== 'rules' ? `IA ${ai}` : 'copiloto por reglas'}`,
+    online: `Servidor conectado · ${ai && ai !== 'rules' ? `IA ${PROVIDERS[provider] ?? ''} ${ai}`.replace('  ', ' ') : 'copiloto por reglas'}`,
     offline: 'Sin servidor · modo local',
   }[state]
   const dot = { checking: 'bg-slate-500', online: 'bg-emerald-400', offline: 'bg-amber-400' }[state]

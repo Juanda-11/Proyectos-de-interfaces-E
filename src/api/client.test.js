@@ -31,6 +31,12 @@ describe('api client', () => {
     })
   })
 
+  it('balance envía la red a /api/balance', async () => {
+    fetch.mockResolvedValue(json({ totalDemand: 16 }))
+    expect(await api.balance(net)).toEqual({ totalDemand: 16 })
+    expect(fetch.mock.calls[0][0]).toBe('/api/balance')
+  })
+
   it('health usa GET sin cuerpo', async () => {
     fetch.mockResolvedValue(json({ status: 'ok' }))
     await api.health()

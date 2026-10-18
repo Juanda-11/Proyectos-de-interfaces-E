@@ -16,3 +16,12 @@ export const suggestDiameter = (p) =>
     25,
     Math.ceil((Math.sqrt((4 * (p.flow / 1000)) / (Math.PI * DESIGN_V)) * 1000) / 25) * 25,
   )
+
+/**
+ * Nivel de velocidad para colorear: 'ok' (hasta la de diseño), 'caution' (entre la de
+ * diseño y el máximo) o 'warn' (sobre el máximo).
+ */
+export const velocityTier = (p) => {
+  const v = velocity(p)
+  return v > MAX_V ? 'warn' : v > DESIGN_V ? 'caution' : 'ok'
+}

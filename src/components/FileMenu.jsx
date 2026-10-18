@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, FilePlus2, FileUp, FileDown, FileCode2, Image } from 'lucide-react'
+import { ChevronDown, FilePlus2, FileUp, FileDown, FileCode2, FileText, Image } from 'lucide-react'
 
 function Item({ icon: Icon, onClick, children }) {
   return (
@@ -23,6 +23,7 @@ export default function FileMenu({
   onExportEpanet,
   onExportSVG,
   onExportPNG,
+  onExportReport,
   busy,
 }) {
   const [open, setOpen] = useState(false)
@@ -76,6 +77,9 @@ export default function FileMenu({
           </Item>
           <Item icon={Image} onClick={run(onExportPNG)}>
             Exportar imagen (PNG)
+          </Item>
+          <Item icon={FileText} onClick={run(onExportReport)}>
+            Exportar informe (Markdown)
           </Item>
           <Item icon={FileCode2} onClick={run(onExportEpanet)}>
             Exportar a EPANET (.inp)
