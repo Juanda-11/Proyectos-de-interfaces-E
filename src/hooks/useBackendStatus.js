@@ -8,13 +8,13 @@ const POLL_MS = 60000
  * `state`: 'checking' | 'online' | 'offline'; `ai` indica el motor del copiloto ('rules' o el modelo).
  */
 export function useBackendStatus() {
-  const [status, setStatus] = useState({ state: 'checking', ai: null })
+  const [status, setStatus] = useState({ state: 'checking', ai: null, provider: null })
   useEffect(() => {
     let alive = true
     const check = () =>
       api.health().then(
-        (h) => alive && setStatus({ state: 'online', ai: h.ai }),
-        () => alive && setStatus({ state: 'offline', ai: null }),
+        (h) => alive && setStatus({ state: 'online', ai: h.ai, provider: h.provider }),
+        () => alive && setStatus({ state: 'offline', ai: null, provider: null }),
       )
     check()
     const id = setInterval(check, POLL_MS)
