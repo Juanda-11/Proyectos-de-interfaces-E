@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { api, ApiError } from './client'
+import { setLanguage } from '../i18n'
 
 const net = { nodes: [{ id: 'A' }], pipes: [], selected: 'ignorado' }
 const json = (data, status = 200) => ({
@@ -35,6 +36,27 @@ describe('api client', () => {
     fetch.mockResolvedValue(json({ totalDemand: 16 }))
     expect(await api.balance(net)).toEqual({ totalDemand: 16 })
     expect(fetch.mock.calls[0][0]).toBe('/api/balance')
+  })
+
+  it('envía el idioma activo en Accept-Language', async () => {
+    fetch.mockResolvedValue(json({}))
+    await api.simulate(net)
+    expect(fetch.mock.calls[0][1].headers['Accept-Language']).toBe('es')
+    setLanguage('en')
+    await api.simulate(net)
+    expect(fetch.mock.calls[1][1].headers['Accept-Language']).toBe('en')
+  })
+
+  it('los mensajes de error siguen el idioma activo', async () => {
+    setLanguage('en')
+    fetch.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    expect(await api.simulate(net).catch((e) => e.message)).toBe('Could not connect to the server')
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => Promise.reject(new Error('html')),
+    })
+    expect(await api.simulate(net).catch((e) => e.message)).toMatch(/API was not found/)
   })
 
   it('health usa GET sin cuerpo', async () => {

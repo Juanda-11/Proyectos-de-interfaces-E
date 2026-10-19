@@ -3,6 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import { ToastProvider } from './hooks/useToasts'
+import { I18nProvider } from './i18n/I18nProvider'
 import { ApiError, api } from './api/client'
 import { downloadBlob } from './lib/download'
 import { svgToPngBlob } from './lib/exportImage'
@@ -339,5 +340,62 @@ describe('App', () => {
     expect(footer()).toHaveTextContent('6 nodos')
     fireEvent.keyDown(window, { key: 'z', ctrlKey: true })
     expect(footer()).toHaveTextContent('8 nodos')
+  })
+
+  describe('idioma y tema', () => {
+    const renderWithProviders = () =>
+      render(
+        <I18nProvider>
+          <ToastProvider>
+            <App />
+          </ToastProvider>
+        </I18nProvider>,
+      )
+
+    it('cambiar a inglés traduce la interfaz y los avisos', async () => {
+      localStorage.setItem('hydrograph-ai:lang', 'es')
+      renderWithProviders()
+      expect(screen.getByText('Simular Flujo')).toBeInTheDocument()
+      await userEvent.click(screen.getByRole('button', { name: 'English' }))
+      expect(screen.getByText('Simulate flow')).toBeInTheDocument()
+      expect(screen.getByText('Optimize')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /^Tanque T1, tank/ })).toBeInTheDocument()
+      expect(screen.getByText(/6 nodes · 5 pipes/)).toBeInTheDocument()
+      await userEvent.click(screen.getByText('File'))
+      await userEvent.click(screen.getByRole('menuitem', { name: /Export report/ }))
+      expect(await screen.findByText(/Report exported without pressures/)).toBeInTheDocument()
+    })
+
+    it('envía el idioma activo al backend en Accept-Language', async () => {
+      localStorage.setItem('hydrograph-ai:lang', 'en')
+      const fetchSpy = vi.fn()
+      api.simulate.mockImplementation(async () => {
+        fetchSpy()
+        return simResult
+      })
+      renderWithProviders()
+      await userEvent.click(screen.getByText('Simulate flow'))
+      await waitFor(() => expect(fetchSpy).toHaveBeenCalled())
+    })
+
+    it('el botón de tema alterna entre oscuro y claro', async () => {
+      localStorage.setItem('hydrograph-ai:lang', 'es')
+      localStorage.setItem('hydrograph-ai:theme', 'dark')
+      renderWithProviders()
+      await userEvent.click(screen.getByLabelText('Cambiar a tema claro'))
+      expect(document.documentElement.dataset.theme).toBe('light')
+      await userEvent.click(screen.getByLabelText('Cambiar a tema oscuro'))
+      expect(document.documentElement.dataset.theme).toBe('dark')
+    })
+
+    it('el diagrama SVG exportado sigue el tema activo', async () => {
+      localStorage.setItem('hydrograph-ai:lang', 'es')
+      localStorage.setItem('hydrograph-ai:theme', 'light')
+      renderWithProviders()
+      await userEvent.click(screen.getByText('Archivo'))
+      await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(SVG\)/ }))
+      const text = await vi.mocked(downloadBlob).mock.calls[0][0].text()
+      expect(text).toContain('fill="#F1F5F9"/>')
+    })
   })
 })
