@@ -13,7 +13,12 @@ const toggleBtn = (on) =>
   `w-8 h-8 grid place-items-center rounded-lg transition ${on ? 'bg-water text-white' : 'text-slate-400 hover:bg-white/10'}`
 const snap = (v) => Math.round(v / GRID) * GRID
 /** Contorno del color del fondo para que las etiquetas se lean sobre las tuberías */
-const HALO = { paintOrder: 'stroke', stroke: '#0F172A', strokeWidth: 3, strokeLinejoin: 'round' }
+const HALO = {
+  paintOrder: 'stroke',
+  stroke: 'var(--cv-halo)',
+  strokeWidth: 3,
+  strokeLinejoin: 'round',
+}
 const NUDGE = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }
 
 export default function Canvas({
@@ -135,11 +140,21 @@ export default function Canvas({
       >
         <defs>
           <pattern id="minor" width={GRID} height={GRID} patternUnits="userSpaceOnUse">
-            <path d={`M${GRID} 0H0V${GRID}`} fill="none" stroke="#1E293B" strokeWidth="1" />
+            <path
+              d={`M${GRID} 0H0V${GRID}`}
+              fill="none"
+              strokeWidth="1"
+              style={{ stroke: 'var(--cv-grid-minor)' }}
+            />
           </pattern>
           <pattern id="major" width={GRID * 5} height={GRID * 5} patternUnits="userSpaceOnUse">
             <rect width={GRID * 5} height={GRID * 5} fill="url(#minor)" />
-            <path d={`M${GRID * 5} 0H0V${GRID * 5}`} fill="none" stroke="#334155" strokeWidth="1" />
+            <path
+              d={`M${GRID * 5} 0H0V${GRID * 5}`}
+              fill="none"
+              strokeWidth="1"
+              style={{ stroke: 'var(--cv-grid-major)' }}
+            />
           </pattern>
         </defs>
         <g transform={`translate(${view.x},${view.y}) scale(${view.k})`}>
@@ -188,7 +203,7 @@ export default function Canvas({
                   <stop offset="1" stopColor={c1} />
                 </linearGradient>
                 {sel && <line {...l} stroke="#38BDF8" strokeOpacity=".3" strokeWidth={w + 12} />}
-                <line {...l} stroke="#0B1220" strokeWidth={w + 6} />
+                <line {...l} strokeWidth={w + 6} style={{ stroke: 'var(--cv-pipe-outline)' }} />
                 <line
                   {...l}
                   stroke={`url(#g${p.id})`}
@@ -241,10 +256,12 @@ export default function Canvas({
                   width="56"
                   height="56"
                   rx="14"
-                  fill="#1E293B"
+                  style={{
+                    fill: 'var(--cv-node-fill)',
+                    filter: `drop-shadow(0 0 8px ${m.color}66)`,
+                  }}
                   stroke={sel || first === n.id ? '#38BDF8' : bad ? '#F97316' : m.color}
                   strokeWidth={sel ? 2.5 : 1.5}
-                  style={{ filter: `drop-shadow(0 0 8px ${m.color}66)` }}
                 />
                 <foreignObject width="56" height="56">
                   <div className="w-full h-full grid place-items-center" style={{ color: m.color }}>
