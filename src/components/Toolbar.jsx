@@ -1,14 +1,18 @@
 import { MousePointer2, Spline } from 'lucide-react'
 import { META } from '../lib/componentTypes'
-
-const items = [
-  { id: 'select', label: 'Cursor', icon: MousePointer2, color: '#E2E8F0' },
-  ...['tank', 'pump', 'valve'].map((t) => ({ id: t, ...META[t] })),
-  { id: 'pipe', label: 'Tubería', icon: Spline, color: '#38BDF8' },
-  { id: 'junction', ...META.junction },
-]
+import { useI18n } from '../i18n/I18nProvider'
 
 export default function Toolbar({ tool, onTool, onAdd }) {
+  const { t } = useI18n()
+  const type = (id) => ({ id, label: META[id].label, icon: META[id].icon, color: META[id].color })
+  const items = [
+    { id: 'select', label: t('tool.select'), icon: MousePointer2, color: '#E2E8F0' },
+    type('tank'),
+    type('pump'),
+    type('valve'),
+    { id: 'pipe', label: t('tool.pipe'), icon: Spline, color: '#38BDF8' },
+    type('junction'),
+  ]
   return (
     <aside className="w-[72px] shrink-0 flex flex-col items-center gap-1 py-3 bg-panel border-r border-line">
       {items.map(({ id, label, icon: Icon, color }) => {

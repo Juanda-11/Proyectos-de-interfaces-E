@@ -1,5 +1,6 @@
 import { CheckCircle2, Info, OctagonAlert, X } from 'lucide-react'
 import { useToasts } from '../hooks/useToasts'
+import { useI18n } from '../i18n/I18nProvider'
 
 const STYLE = {
   info: ['border-sky-400/30 text-sky-100', Info, 'text-sky-400'],
@@ -8,6 +9,7 @@ const STYLE = {
 }
 
 export default function Toasts() {
+  const { t: tr } = useI18n()
   const { toasts, dismiss } = useToasts()
   return (
     <div
@@ -26,7 +28,7 @@ export default function Toasts() {
             <span className="flex-1">{text}</span>
             <button
               onClick={() => dismiss(id)}
-              aria-label="Cerrar aviso"
+              aria-label={tr('toast.close')}
               className="text-slate-400 hover:text-white"
             >
               <X size={14} />

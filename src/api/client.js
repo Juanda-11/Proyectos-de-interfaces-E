@@ -1,4 +1,5 @@
 import { API_TIMEOUT_MS, API_URL } from '../config'
+import { getLanguage, translate } from '../i18n'
 
 /** Error de una petición al backend. `code` permite distinguir fallos de red de errores de validación. */
 export class ApiError extends Error {
@@ -21,29 +22,26 @@ async function request(
   try {
     res = await fetch(`${API_URL}${path}`, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: {
+        'Accept-Language': getLanguage(),
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
       body: body ? JSON.stringify(body) : undefined,
       signal: AbortSignal.timeout(timeoutMs),
     })
   } catch (err) {
     const timeout = err?.name === 'TimeoutError'
-    throw new ApiError(
-      timeout ? 'El servidor tardó demasiado en responder' : 'No se pudo conectar con el servidor',
-      {
-        code: timeout ? 'TIMEOUT' : 'NETWORK',
-      },
-    )
+    throw new ApiError(translate(timeout ? 'api.timeout' : 'api.network'), {
+      code: timeout ? 'TIMEOUT' : 'NETWORK',
+    })
   }
   if (!res.ok) {
     const { error } = await res.json().catch(() => ({}))
     // Respuesta que no es de nuestra API (p. ej. 404 de la plataforma): VITE_API_URL mal configurada o backend caído
     if (!error && NO_API_STATUS.includes(res.status)) {
-      throw new ApiError(
-        'No se encontró la API en esta dirección. Revisa que VITE_API_URL apunte al backend.',
-        { status: res.status, code: 'NO_API' },
-      )
+      throw new ApiError(translate('api.noApi'), { status: res.status, code: 'NO_API' })
     }
-    throw new ApiError(error?.message ?? `Error ${res.status} del servidor`, {
+    throw new ApiError(error?.message ?? translate('api.httpError', { status: res.status }), {
       status: res.status,
       code: error?.code ?? 'HTTP_ERROR',
       details: error?.details,

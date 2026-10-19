@@ -14,6 +14,7 @@ Editor visual para **diseñar, simular y auditar redes de suministro de agua** c
 - **Calcular caudales** (botón _Caudales_): reparte las demandas de los nodos por los tramos de la red.
 - **Optimizar** con un clic: corrige diámetros con velocidad excesiva y sube la altura de bombas si falta presión.
 - **Importar/exportar**: JSON propio, **EPANET (.inp)**, el diagrama como **SVG/PNG** y un **informe técnico en Markdown**.
+- **Idioma español/inglés** y **tema claro/oscuro**: se recuerdan entre sesiones y también se traducen los mensajes del servidor.
 - **Guardado automático** en el navegador y **modo sin conexión**: si el backend no responde, el editor sigue funcionando con cálculo local de velocidades.
 - **Accesible**: todo el lienzo se maneja con teclado (Tab, Enter, flechas), foco visible, etiquetas ARIA y respeto a `prefers-reduced-motion`.
 
@@ -35,7 +36,7 @@ git clone https://github.com/Juanda-11/Proyectos-de-interfaces-E && cd Proyectos
 npm install && npm run dev            # http://localhost:5173
 ```
 
-En desarrollo, Vite redirige `/api` a `http://localhost:3001` (cámbialo con `BACKEND_URL`). Sin backend la aplicación abre igual, en modo local.
+En desarrollo, Vite redirige `/api` a `http://localhost:3001` (configurable con `BACKEND_URL`). Sin backend la aplicación abre igual, en modo local.
 
 ## Variables de entorno
 
@@ -46,12 +47,12 @@ En desarrollo, Vite redirige `/api` a `http://localhost:3001` (cámbialo con `BA
 
 ## Despliegue en Vercel
 
-1. Despliega primero el [backend](https://github.com/Juanda-11/Proyectos-de-interfaces-EB#despliegue-en-vercel) y anota su URL.
+1. El [backend](https://github.com/Juanda-11/Proyectos-de-interfaces-EB#despliegue-en-vercel) se despliega primero y su URL se usa en el paso 3.
 2. En Vercel: **Add New → Project** → importa este repositorio (se detecta Vite; [`vercel.json`](vercel.json) ya fija el comando de instalación y las cabeceras de seguridad).
 3. En _Environment Variables_ añade `VITE_API_URL` = URL del backend (p. ej. `https://hydrograph-api.vercel.app`).
-4. Despliega y copia la URL resultante en la variable `CORS_ORIGINS` del backend (y redespliega el backend).
+4. La URL resultante del frontend se configura en `CORS_ORIGINS` del backend, que se vuelve a desplegar.
 
-Guía completa con comprobaciones: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+Guía completa, con comprobaciones y diagnóstico: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Scripts
 
@@ -104,7 +105,11 @@ electron/main.js            # Ventana de escritorio
 
 ## Pruebas
 
-Más de 140 pruebas cubren la lógica (`lib/`, hooks, cliente HTTP) y la interfaz (componentes y flujos completos de `App` con el backend simulado). La CI ejecuta lint, formato, cobertura y build en Node 20 y 22.
+Más de 200 pruebas cubren la lógica (`lib/`, hooks, cliente HTTP) y la interfaz (componentes y flujos completos de `App` con el backend simulado). La CI ejecuta lint, formato, cobertura y build en Node 20 y 22.
+
+## Material de presentación
+
+[`docs/GUIA_SUSTENTACION.md`](docs/GUIA_SUSTENTACION.md): resumen del proyecto, decisiones de diseño, demostración sugerida y preguntas frecuentes.
 
 ## Licencia
 

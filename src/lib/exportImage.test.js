@@ -56,3 +56,24 @@ describe('networkToSvg', () => {
     expect(empty.width).toBeGreaterThan(0)
   })
 })
+
+describe('networkToSvg · tema', () => {
+  it('usa colores claros con theme="light" y oscuros por defecto', () => {
+    const dark = networkToSvg(net).svg
+    const light = networkToSvg(net, { theme: 'light' }).svg
+    expect(dark).toContain('fill="#0F172A"/>')
+    expect(light).toContain('fill="#F1F5F9"/>')
+    expect(light).not.toContain('fill="#1E293B"')
+    expect(light).toContain('fill="#FFFFFF"')
+  })
+  it('el título por defecto sigue el idioma activo', async () => {
+    const { setLanguage } = await import('../i18n')
+    expect(networkToSvg(net).svg).toContain('Red de distribución')
+    setLanguage('en')
+    try {
+      expect(networkToSvg(net).svg).toContain('Distribution network')
+    } finally {
+      setLanguage('es')
+    }
+  })
+})

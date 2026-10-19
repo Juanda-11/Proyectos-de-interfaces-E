@@ -10,8 +10,11 @@ import {
   Scale,
   Loader2,
   WifiOff,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import FileMenu from './FileMenu'
+import { useI18n } from '../i18n/I18nProvider'
 
 export default function TopBar({
   running,
@@ -21,12 +24,15 @@ export default function TopBar({
   onOptimize,
   onBalance,
   busy,
+  theme = 'dark',
+  onToggleTheme = () => {},
   canUndo,
   canRedo,
   onUndo,
   onRedo,
   ...files
 }) {
+  const { t, lang, setLang } = useI18n()
   const warn = warnings > 0
   return (
     <header className="h-12 shrink-0 flex items-center gap-4 px-4 bg-panel border-b border-line">
@@ -35,9 +41,7 @@ export default function TopBar({
           <Droplets size={16} className="text-white" />
         </span>
         <h1 className="text-sm font-semibold">HydroGraph AI</h1>
-        <span className="text-xs text-slate-400 hidden lg:inline">
-          · Red_Distribución_01.hgraph
-        </span>
+        <span className="text-xs text-slate-400 hidden lg:inline">· {t('topbar.fileName')}</span>
       </div>
 
       <span
@@ -50,30 +54,61 @@ export default function TopBar({
       >
         {warn ? <AlertTriangle size={13} /> : <CheckCircle2 size={13} />}
         {warn
-          ? `${warnings} advertencia${warnings > 1 ? 's' : ''}`
+          ? t('topbar.warnings', { count: warnings })
           : running
-            ? 'Red estable · simulando'
-            : 'Red estable'}
+            ? t('topbar.stableSimulating')
+            : t('topbar.stable')}
       </span>
       {running && status === 'offline' && (
         <span
           className="inline-flex items-center gap-1.5 text-xs text-amber-300"
-          title="Sin conexión con el servidor: solo se calculan velocidades"
+          title={t('topbar.offlineTitle')}
         >
-          <WifiOff size={13} /> Modo local
+          <WifiOff size={13} /> {t('topbar.offline')}
         </span>
       )}
 
       <div className="ml-auto flex items-center gap-2">
+        <div className="flex gap-1 mr-1">
+          <button
+            onClick={onToggleTheme}
+            title={theme === 'dark' ? t('topbar.theme.toLight') : t('topbar.theme.toDark')}
+            aria-label={theme === 'dark' ? t('topbar.theme.toLight') : t('topbar.theme.toDark')}
+            className="w-8 h-8 grid place-items-center rounded-lg border border-line text-slate-300 hover:bg-white/5 transition"
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+          <div
+            role="group"
+            aria-label={t('topbar.language')}
+            className="flex rounded-lg border border-line overflow-hidden text-xs font-medium"
+          >
+            {[
+              ['es', 'ES', 'Español'],
+              ['en', 'EN', 'English'],
+            ].map(([code, short, name]) => (
+              <button
+                key={code}
+                onClick={() => setLang(code)}
+                aria-pressed={lang === code}
+                aria-label={name}
+                title={name}
+                className={`px-2 h-8 transition ${lang === code ? 'bg-water text-white' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                {short}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex mr-1 rounded-lg border border-line overflow-hidden">
           {[
-            [Undo2, 'Deshacer (Ctrl+Z)', onUndo, canUndo],
-            [Redo2, 'Rehacer (Ctrl+Y)', onRedo, canRedo],
-          ].map(([Icon, t, fn, on]) => (
+            [Undo2, t('topbar.undo'), onUndo, canUndo],
+            [Redo2, t('topbar.redo'), onRedo, canRedo],
+          ].map(([Icon, label, fn, on]) => (
             <button
-              key={t}
-              title={t}
-              aria-label={t}
+              key={label}
+              title={label}
+              aria-label={label}
               onClick={fn}
               disabled={!on}
               className="w-8 h-8 grid place-items-center text-slate-300 hover:bg-white/5 disabled:opacity-30 disabled:hover:bg-transparent transition"
@@ -86,7 +121,7 @@ export default function TopBar({
         <button
           onClick={onBalance}
           disabled={busy}
-          title="Calcula los caudales de cada tramo a partir de las demandas de los nodos"
+          title={t('topbar.balanceTitle')}
           className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-sm border border-line text-slate-300 hover:bg-white/5 disabled:opacity-50 transition"
         >
           {busy === 'balance' ? (
@@ -94,12 +129,12 @@ export default function TopBar({
           ) : (
             <Scale size={15} />
           )}{' '}
-          <span className="hidden xl:inline">Caudales</span>
+          <span className="hidden xl:inline">{t('topbar.balance')}</span>
         </button>
         <button
           onClick={onOptimize}
           disabled={busy}
-          title="Corrige diámetros y alturas de bomba automáticamente"
+          title={t('topbar.optimizeTitle')}
           className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-sm border border-violet-400/40 text-violet-200 hover:bg-violet-500/15 disabled:opacity-50 transition"
         >
           {busy === 'optimize' ? (
@@ -107,7 +142,7 @@ export default function TopBar({
           ) : (
             <Wand2 size={15} />
           )}{' '}
-          Optimizar
+          {t('topbar.optimize')}
         </button>
         <button
           onClick={onToggle}
@@ -124,7 +159,7 @@ export default function TopBar({
           ) : (
             <Play size={14} />
           )}
-          {running ? 'Detener' : 'Simular Flujo'}
+          {running ? t('topbar.stop') : t('topbar.simulate')}
         </button>
       </div>
     </header>

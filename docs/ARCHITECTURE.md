@@ -37,6 +37,12 @@ Mientras la simulación está activa, cada cambio de la red reinicia un temporiz
 
 `lib/parseNetwork.js` valida cualquier red que entra (archivo importado, `localStorage`, respuesta del backend): tipos, coordenadas, ids únicos, extremos existentes y rangos. Una red dañada nunca llega al estado de la aplicación.
 
+## Idioma y tema
+
+- **Idioma:** `src/i18n` contiene los diccionarios `es.js` y `en.js` y una función `translate(clave, parámetros)` con plurales (`clave.one` / `clave.other`). El idioma activo vive en el módulo para que también lo usen el cliente HTTP, el informe o la validación; `I18nProvider` lo mantiene sincronizado y repinta la interfaz. Una prueba comprueba que ambos diccionarios tienen las mismas claves y parámetros.
+- **Servidor:** el cliente envía `Accept-Language` y el backend responde en ese idioma (problemas, sugerencias, copiloto y errores).
+- **Tema:** la paleta son variables CSS (`--c-*`) que Tailwind consume como colores; `data-theme="light"` en `<html>` cambia sus valores. El lienzo SVG usa variables `--cv-*`. Un script en `index.html` aplica tema e idioma guardados antes de pintar para evitar parpadeos. El diagrama exportado (SVG/PNG) sigue el tema activo.
+
 ## Accesibilidad
 
 - Nodos y tuberías del SVG son `role="button"` enfocables, con nombre accesible (`Sector 3, nodo, 13.3 metros…`).
@@ -46,9 +52,9 @@ Mientras la simulación está activa, cada cambio de la red reinicia un temporiz
 
 ## Decisiones
 
-| Decisión                         | Motivo                                                                                                                                        |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tailwind 3 en vez de 4           | Evitar reescribir toda la configuración de diseño a poco de la entrega; las dependencias vulnerables son solo de compilación y no se publican |
-| React 18                         | Versión con la que se desarrolló el prototipo; sin necesidad de migrar                                                                        |
-| `localStorage` para autoguardado | Sin cuentas ni base de datos: el alcance del proyecto es un editor personal                                                                   |
-| SVG propio para exportar         | El SVG del lienzo depende de clases CSS; el exportado es autónomo y se ve igual en cualquier visor                                            |
+| Decisión                         | Motivo                                                                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tailwind 3 en vez de 4           | Evitar una migración de toda la configuración de diseño con riesgo visual; las dependencias señaladas son solo de compilación y no se publican |
+| React 18                         | Versión con la que se desarrolló el prototipo; sin necesidad de migrar                                                                         |
+| `localStorage` para autoguardado | Sin cuentas ni base de datos: el alcance del proyecto es un editor personal                                                                    |
+| SVG propio para exportar         | El SVG del lienzo depende de clases CSS; el exportado es autónomo y se ve igual en cualquier visor                                             |
