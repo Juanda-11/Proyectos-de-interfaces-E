@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Sparkles, X, CornerDownLeft } from 'lucide-react'
+import { useI18n } from '../i18n/I18nProvider'
 
-const SUGGESTIONS = ['Diseñar red para 3 sectores', 'Auditar presiones de la red']
+const SUGGESTIONS = ['copilot.suggestion.design', 'copilot.suggestion.audit']
 
 /**
  * Consola flotante del copiloto (Ctrl+K). `onSubmit(orden)` devuelve una promesa con
  * `{ message, source }`; si rechaza, el error se muestra como respuesta del copiloto.
  */
 export default function Copilot({ onSubmit }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -47,7 +49,7 @@ export default function Copilot({ onSubmit }) {
       const { message, source } = await onSubmit(q)
       reply = { role: 'ai', t: message, source }
     } catch (err) {
-      reply = { role: 'ai', t: err.message || 'No pude completar la orden.', error: true }
+      reply = { role: 'ai', t: err.message || t('copilot.failed'), error: true }
     }
     if (!alive.current) return
     setMsgs((m) => [...m, reply])
@@ -61,7 +63,7 @@ export default function Copilot({ onSubmit }) {
         onClick={() => setOpen(true)}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 pl-4 pr-3 h-11 rounded-full bg-ai text-white text-sm font-medium shadow-[0_0_28px_rgba(139,92,246,.55)] hover:scale-105 active:scale-95 transition"
       >
-        <Sparkles size={16} /> Copiloto IA
+        <Sparkles size={16} /> {t('copilot.title')}
         <kbd className="ml-1 px-1.5 py-0.5 rounded bg-black/25 text-[11px] font-mono">Ctrl K</kbd>
       </button>
     )
@@ -69,7 +71,7 @@ export default function Copilot({ onSubmit }) {
   return (
     <div
       role="dialog"
-      aria-label="Copiloto IA"
+      aria-label={t('copilot.title')}
       className="rise absolute bottom-6 left-1/2 -translate-x-1/2 w-[640px] max-w-[92%] rounded-2xl p-[1.5px] bg-ai shadow-[0_0_44px_rgba(139,92,246,.45)]"
     >
       <div className="rounded-2xl bg-app/95 backdrop-blur-xl">
@@ -86,7 +88,7 @@ export default function Copilot({ onSubmit }) {
                   {m.t}
                   {m.source && (
                     <span className="ml-2 align-middle text-[10px] font-mono uppercase tracking-wide text-violet-300/70">
-                      {m.source === 'ai' ? 'IA' : 'reglas'}
+                      {m.source === 'ai' ? t('copilot.sourceAi') : t('copilot.sourceRules')}
                     </span>
                   )}
                 </span>
@@ -103,7 +105,7 @@ export default function Copilot({ onSubmit }) {
                     />
                   ))}
                 </span>
-                Copiloto analizando la red…
+                {t('copilot.thinking')}
               </div>
             )}
             <div ref={end} />
@@ -116,17 +118,17 @@ export default function Copilot({ onSubmit }) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
-            aria-label="Orden para el copiloto"
+            aria-label={t('copilot.inputLabel')}
             maxLength={500}
-            placeholder='Escribe una orden, p. ej. "Diseñar red para 3 sectores"'
+            placeholder={t('copilot.placeholder')}
             disabled={loading}
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-slate-500"
           />
           <CornerDownLeft size={15} className="text-slate-500" />
           <button
             onClick={() => setOpen(false)}
-            title="Cerrar (Esc)"
-            aria-label="Cerrar copiloto"
+            title={t('copilot.closeTitle')}
+            aria-label={t('copilot.close')}
             className="text-slate-400 hover:text-white"
           >
             <X size={16} />
@@ -134,13 +136,13 @@ export default function Copilot({ onSubmit }) {
         </div>
         {msgs.length === 0 && (
           <div className="flex gap-2 px-4 pb-3">
-            {SUGGESTIONS.map((s) => (
+            {SUGGESTIONS.map((k) => (
               <button
-                key={s}
-                onClick={() => submit(s)}
+                key={k}
+                onClick={() => submit(t(k))}
                 className="px-2.5 py-1 rounded-full text-xs border border-violet-400/30 text-violet-200 hover:bg-violet-500/15 transition"
               >
-                {s}
+                {t(k)}
               </button>
             ))}
           </div>

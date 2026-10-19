@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../i18n/I18nProvider'
 import { ChevronDown, FilePlus2, FileUp, FileDown, FileCode2, FileText, Image } from 'lucide-react'
 
 function Item({ icon: Icon, onClick, children }) {
@@ -26,6 +27,7 @@ export default function FileMenu({
   onExportReport,
   busy,
 }) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const root = useRef(null)
   const [fileInput, setFileInput] = useState(null) // ref como estado: se usa solo en manejadores
@@ -56,7 +58,7 @@ export default function FileMenu({
         disabled={Boolean(busy)}
         className="flex items-center gap-1.5 px-3 h-8 rounded-lg text-sm border border-line text-slate-300 hover:bg-white/5 disabled:opacity-50 transition"
       >
-        Archivo <ChevronDown size={14} />
+        {t('file.menu')} <ChevronDown size={14} />
       </button>
       {open && (
         <ul
@@ -64,25 +66,25 @@ export default function FileMenu({
           className="rise absolute right-0 mt-1.5 w-56 p-1 rounded-xl bg-panel border border-line shadow-xl z-40"
         >
           <Item icon={FilePlus2} onClick={run(onNew)}>
-            Nueva red de ejemplo
+            {t('file.new')}
           </Item>
           <Item icon={FileUp} onClick={run(() => fileInput?.click())}>
-            Importar JSON…
+            {t('file.import')}
           </Item>
           <Item icon={FileDown} onClick={run(onExportJSON)}>
-            Exportar JSON
+            {t('file.exportJson')}
           </Item>
           <Item icon={Image} onClick={run(onExportSVG)}>
-            Exportar imagen (SVG)
+            {t('file.exportSvg')}
           </Item>
           <Item icon={Image} onClick={run(onExportPNG)}>
-            Exportar imagen (PNG)
+            {t('file.exportPng')}
           </Item>
           <Item icon={FileText} onClick={run(onExportReport)}>
-            Exportar informe (Markdown)
+            {t('file.exportReport')}
           </Item>
           <Item icon={FileCode2} onClick={run(onExportEpanet)}>
-            Exportar a EPANET (.inp)
+            {t('file.exportEpanet')}
           </Item>
         </ul>
       )}
@@ -91,7 +93,7 @@ export default function FileMenu({
         type="file"
         accept=".json,application/json"
         hidden
-        aria-label="Importar red desde archivo JSON"
+        aria-label={t('file.importLabel')}
         onChange={(e) => {
           const f = e.target.files?.[0]
           e.target.value = ''
