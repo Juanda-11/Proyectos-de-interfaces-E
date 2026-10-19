@@ -294,7 +294,7 @@ export default function Canvas({
                     textAnchor="middle"
                     className={`text-[10px] font-mono select-none ${bad ? 'fill-orange-400' : 'fill-sky-300'}`}
                   >
-                    {res.pressure.toFixed(1)} m.c.a.
+                    {res.pressure.toFixed(1)} {t('unit.pressure')}
                   </text>
                 )}
               </g>

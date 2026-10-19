@@ -6,6 +6,7 @@ import {
   TriangleAlert,
   Info,
 } from 'lucide-react'
+import { useI18n } from '../i18n/I18nProvider'
 import { META } from '../lib/componentTypes'
 import { velocity, MAX_V, suggestDiameter } from '../lib/hydraulics'
 
@@ -47,8 +48,8 @@ const SEVERITY = {
 
 /** Etiquetas del control de «presión» según el tipo: para tanques y bombas no es una presión. */
 const PRESSURE_FIELD = {
-  tank: { label: 'Nivel de agua', unit: 'm', max: 60 },
-  pump: { label: 'Altura de bomba', unit: 'm', max: 100 },
+  tank: { label: 'inspector.waterLevel', unit: 'm', max: 60 },
+  pump: { label: 'inspector.pumpHead', unit: 'm', max: 100 },
 }
 
 export default function Inspector({
@@ -62,6 +63,7 @@ export default function Inspector({
   onCommit,
   onSelect,
 }) {
+  const { t } = useI18n()
   const node = selected?.kind === 'node' && net.nodes.find((n) => n.id === selected.id)
   const pipe = selected?.kind === 'pipe' && net.pipes.find((p) => p.id === selected.id)
   const { result, issues, pipeResult, nodeResult } = simulation
@@ -85,8 +87,8 @@ export default function Inspector({
         {selected && (
           <button
             onClick={onDelete}
-            title="Eliminar (Supr)"
-            aria-label="Eliminar elemento seleccionado"
+            title={t('inspector.deleteTitle')}
+            aria-label={t('inspector.delete')}
             className="text-slate-400 hover:text-red-400 transition"
           >
             <Trash2 size={16} />
@@ -97,24 +99,24 @@ export default function Inspector({
       {!selected && (
         <div className="p-4 space-y-4 rise">
           <div className="grid grid-cols-2 gap-2">
-            <Metric label="Componentes" value={net.nodes.length} />
-            <Metric label="Tuberías" value={net.pipes.length} />
+            <Metric label={t('inspector.components')} value={net.nodes.length} />
+            <Metric label={t('inspector.pipes')} value={net.pipes.length} />
             <Metric
-              label="Caudal máx."
+              label={t('inspector.maxFlow')}
               value={Math.max(0, ...net.pipes.map((p) => p.flow))}
               unit="L/s"
             />
             <Metric
-              label="Presión mín."
+              label={t('inspector.minPressure')}
               value={typeof minPressure === 'number' ? minPressure.toFixed(1) : '—'}
-              unit={result ? 'm.c.a.' : ''}
+              unit={result ? t('unit.pressure') : ''}
               bad={typeof minPressure === 'number' && minPressure < 10}
             />
           </div>
 
           {issues.length > 0 && (
-            <section aria-label="Problemas detectados" className="space-y-2">
-              <h3 className="text-xs font-semibold text-slate-300">Problemas detectados</h3>
+            <section aria-label={t('inspector.issues')} className="space-y-2">
+              <h3 className="text-xs font-semibold text-slate-300">{t('inspector.issues')}</h3>
               <ul className="space-y-1.5">
                 {issues.map((i, k) => {
                   const [Icon, tint] = SEVERITY[i.severity]
@@ -154,7 +156,7 @@ export default function Inspector({
           <table className="w-full text-xs font-mono tabular-nums">
             <thead className="text-slate-500 text-left">
               <tr>
-                <th className="font-normal pb-1">Tramo</th>
+                <th className="font-normal pb-1">{t('inspector.pipe')}</th>
                 <th className="font-normal">DN</th>
                 <th className="font-normal">L/s</th>
                 <th className="font-normal text-right">m/s</th>
@@ -194,8 +196,8 @@ export default function Inspector({
           </table>
           <p className="flex items-start gap-2 text-xs text-slate-500">
             <MousePointerClick size={14} className="shrink-0 mt-0.5" />
-            Selecciona un tramo o componente para editar sus propiedades.
-            {!running && ' Pulsa «Simular Flujo» para calcular presiones y pérdidas.'}
+            {t('inspector.hint')}
+            {!running && ` ${t('inspector.hintSimulate')}`}
           </p>
         </div>
       )}
@@ -219,7 +221,7 @@ export default function Inspector({
               </div>
               {field && (
                 <Slider
-                  label={field.label}
+                  label={t(field.label)}
                   unit={field.unit}
                   value={node.pressure}
                   min={0}
@@ -228,7 +230,7 @@ export default function Inspector({
                 />
               )}
               <Slider
-                label="Cota"
+                label={t('inspector.elevation')}
                 unit="m"
                 value={node.elevation}
                 min={0}
@@ -237,7 +239,7 @@ export default function Inspector({
               />
               {node.type === 'junction' && (
                 <Slider
-                  label="Demanda"
+                  label={t('inspector.demand')}
                   unit="L/s"
                   value={node.demand ?? 0}
                   min={0}
@@ -247,16 +249,18 @@ export default function Inspector({
               )}
               {res && res.pressure !== null && (
                 <Metric
-                  label={node.type === 'tank' ? 'Presión en fondo' : 'Presión calculada'}
+                  label={
+                    node.type === 'tank'
+                      ? t('inspector.bottomPressure')
+                      : t('inspector.computedPressure')
+                  }
                   value={res.pressure.toFixed(1)}
-                  unit="m.c.a."
+                  unit={t('unit.pressure')}
                   bad={res.status !== 'ok'}
                 />
               )}
               {res?.status === 'disconnected' && (
-                <p className="text-xs text-orange-300">
-                  Este componente no está conectado a ningún tanque.
-                </p>
+                <p className="text-xs text-orange-300">{t('inspector.disconnected')}</p>
               )}
               <div className="grid grid-cols-2 gap-2 font-mono text-xs text-slate-400">
                 <div>
@@ -279,13 +283,13 @@ export default function Inspector({
           return (
             <div key={pipe.id} className="p-4 space-y-5 rise">
               <div className="text-xs text-slate-400">
-                Tubería ·{' '}
+                {t('inspector.pipeTitle')} ·{' '}
                 <span className="font-mono">
                   {pipe.from} → {pipe.to}
                 </span>
               </div>
               <Slider
-                label="Diámetro"
+                label={t('inspector.diameter')}
                 unit="mm"
                 value={pipe.diameter}
                 min={25}
@@ -294,7 +298,7 @@ export default function Inspector({
                 onChange={(d) => onPipe(pipe.id, { diameter: d })}
               />
               <Slider
-                label="Caudal"
+                label={t('inspector.flow')}
                 unit="L/s"
                 value={pipe.flow}
                 min={1}
@@ -302,19 +306,26 @@ export default function Inspector({
                 onChange={(q) => onPipe(pipe.id, { flow: q })}
               />
               <div className="grid grid-cols-2 gap-2">
-                <Metric label="Velocidad" value={v.toFixed(2)} unit="m/s" bad={v > MAX_V} />
-                <Metric label="Caudal" value={pipe.flow} unit="L/s" />
+                <Metric
+                  label={t('inspector.velocity')}
+                  value={v.toFixed(2)}
+                  unit="m/s"
+                  bad={v > MAX_V}
+                />
+                <Metric label={t('inspector.flow')} value={pipe.flow} unit="L/s" />
                 {res && (
-                  <Metric label="Pérdida de carga" value={res.headLoss.toFixed(2)} unit="m" />
+                  <Metric
+                    label={t('inspector.headLoss')}
+                    value={res.headLoss.toFixed(2)}
+                    unit="m"
+                  />
                 )}
-                {res && <Metric label="Longitud" value={res.length} unit="m" />}
+                {res && <Metric label={t('inspector.length')} value={res.length} unit="m" />}
               </div>
               {warn && (
                 <div className="rounded-xl p-[1.5px] bg-danger">
                   <div className="rounded-xl bg-app p-3 text-xs space-y-2">
-                    <p className="text-orange-300 font-medium">
-                      Velocidad excesiva: riesgo de sobrepresión y desgaste.
-                    </p>
+                    <p className="text-orange-300 font-medium">{t('inspector.velocityWarning')}</p>
                     <button
                       onClick={() => {
                         onCommit()
@@ -322,7 +333,7 @@ export default function Inspector({
                       }}
                       className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-ai text-white font-medium hover:brightness-110 transition"
                     >
-                      <Sparkles size={13} /> Aplicar DN{dn} sugerido por IA
+                      <Sparkles size={13} /> {t('inspector.applyDn', { dn })}
                     </button>
                   </div>
                 </div>
