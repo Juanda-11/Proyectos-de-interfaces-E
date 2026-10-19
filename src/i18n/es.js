@@ -119,4 +119,27 @@ export default {
   'inspector.length': 'Longitud',
   'inspector.velocityWarning': 'Velocidad excesiva: riesgo de sobrepresión y desgaste.',
   'inspector.applyDn': 'Aplicar DN{dn} sugerido por IA',
+
+  // Lógica sin React
+  'network.sector': 'Sector',
+  'offline.designed':
+    'Red generada sin conexión: 1 tanque, 1 bomba y {n} sectores con {pipes} tuberías. Pulsa "Simular Flujo" para verificar velocidades.',
+  'offline.auditOk':
+    'Auditoría local completa: velocidades dentro de rango. (Sin conexión no se calculan presiones.)',
+  'offline.auditBad':
+    'Detecté {n} tramo(s) con velocidad sobre 2.5 m/s ({ids}). Selecciónalo y aplica el diámetro sugerido (DN{dn}).',
+  'offline.optimized': 'Ajusté {n} diámetro(s) sin conexión: {list}.',
+  'offline.nothing': 'La red ya cumple los criterios de velocidad; no hay nada que optimizar.',
+  'offline.help':
+    'Puedo diseñar redes ("Diseñar red para 3 sectores") o auditarlas ("Auditar presiones").',
+  'parse.format':
+    'El archivo no tiene el formato de una red HydroGraph (faltan «nodes» o «pipes»).',
+  'parse.tooLarge': 'La red es demasiado grande (máx. 200 nodos y 400 tuberías).',
+  'parse.nodeNoId': 'Hay un nodo sin identificador.',
+  'parse.unknownType': 'Tipo de componente desconocido: «{type}».',
+  'parse.badCoords': 'El nodo {id} no tiene coordenadas válidas.',
+  'parse.dupNode': 'Identificador de nodo repetido: {id}.',
+  'parse.pipeNoId': 'Hay una tubería sin identificador o repetida.',
+  'parse.pipeNodes': 'La tubería {id} conecta nodos inexistentes.',
+  'parse.pipeValues': 'La tubería {id} tiene diámetro o caudal inválido.',
 }

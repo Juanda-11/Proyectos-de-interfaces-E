@@ -1,4 +1,5 @@
 import { META } from './componentTypes'
+import { translate as t } from '../i18n'
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v)
 const str = (v, fallback) => (typeof v === 'string' && v.trim() ? v : fallback)
@@ -10,20 +11,18 @@ const str = (v, fallback) => (typeof v === 'string' && v.trim() ? v : fallback)
 export function parseNetwork(data) {
   if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.pipes)) {
     return {
-      error: 'El archivo no tiene el formato de una red HydroGraph (faltan «nodes» o «pipes»).',
+      error: t('parse.format'),
     }
   }
-  if (data.nodes.length > 200 || data.pipes.length > 400)
-    return { error: 'La red es demasiado grande (máx. 200 nodos y 400 tuberías).' }
+  if (data.nodes.length > 200 || data.pipes.length > 400) return { error: t('parse.tooLarge') }
 
   const ids = new Set()
   const nodes = []
   for (const n of data.nodes) {
-    if (!n || typeof n.id !== 'string' || !n.id) return { error: 'Hay un nodo sin identificador.' }
-    if (!META[n.type]) return { error: `Tipo de componente desconocido: «${n.type}».` }
-    if (!isNum(n.x) || !isNum(n.y))
-      return { error: `El nodo ${n.id} no tiene coordenadas válidas.` }
-    if (ids.has(n.id)) return { error: `Identificador de nodo repetido: ${n.id}.` }
+    if (!n || typeof n.id !== 'string' || !n.id) return { error: t('parse.nodeNoId') }
+    if (!META[n.type]) return { error: t('parse.unknownType', { type: n.type }) }
+    if (!isNum(n.x) || !isNum(n.y)) return { error: t('parse.badCoords', { id: n.id }) }
+    if (ids.has(n.id)) return { error: t('parse.dupNode', { id: n.id }) }
     ids.add(n.id)
     nodes.push({ ...META[n.type].props, ...n, name: str(n.name, `${META[n.type].label} ${n.id}`) })
   }
@@ -32,11 +31,11 @@ export function parseNetwork(data) {
   const pipes = []
   for (const p of data.pipes) {
     if (!p || typeof p.id !== 'string' || !p.id || pipeIds.has(p.id))
-      return { error: 'Hay una tubería sin identificador o repetida.' }
+      return { error: t('parse.pipeNoId') }
     if (!ids.has(p.from) || !ids.has(p.to) || p.from === p.to)
-      return { error: `La tubería ${p.id} conecta nodos inexistentes.` }
+      return { error: t('parse.pipeNodes', { id: p.id }) }
     if (!isNum(p.diameter) || p.diameter <= 0 || !isNum(p.flow) || p.flow < 0)
-      return { error: `La tubería ${p.id} tiene diámetro o caudal inválido.` }
+      return { error: t('parse.pipeValues', { id: p.id }) }
     pipeIds.add(p.id)
     pipes.push({ id: p.id, from: p.from, to: p.to, diameter: p.diameter, flow: p.flow })
   }

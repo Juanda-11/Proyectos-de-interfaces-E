@@ -110,4 +110,25 @@ export default {
   'inspector.length': 'Length',
   'inspector.velocityWarning': 'Excessive velocity: risk of overpressure and wear.',
   'inspector.applyDn': 'Apply AI-suggested DN{dn}',
+
+  'network.sector': 'Sector',
+  'offline.designed':
+    'Network generated offline: 1 tank, 1 pump and {n} sectors with {pipes} pipes. Press "Simulate flow" to check velocities.',
+  'offline.auditOk':
+    'Local audit complete: velocities are within range. (Pressures are not calculated offline.)',
+  'offline.auditBad':
+    'I found {n} pipe(s) with velocity above 2.5 m/s ({ids}). Select it and apply the suggested diameter (DN{dn}).',
+  'offline.optimized': 'Adjusted {n} diameter(s) offline: {list}.',
+  'offline.nothing': 'The network already meets the velocity criteria; nothing to optimize.',
+  'offline.help':
+    'I can design networks ("Design a network for 3 sectors") or audit them ("Audit pressures").',
+  'parse.format': 'The file is not in HydroGraph network format (missing “nodes” or “pipes”).',
+  'parse.tooLarge': 'The network is too large (max. 200 nodes and 400 pipes).',
+  'parse.nodeNoId': 'A node has no identifier.',
+  'parse.unknownType': 'Unknown component type: “{type}”.',
+  'parse.badCoords': 'Node {id} has no valid coordinates.',
+  'parse.dupNode': 'Duplicate node identifier: {id}.',
+  'parse.pipeNoId': 'A pipe has no identifier or it is duplicated.',
+  'parse.pipeNodes': 'Pipe {id} connects nonexistent nodes.',
+  'parse.pipeValues': 'Pipe {id} has an invalid diameter or flow.',
 }
