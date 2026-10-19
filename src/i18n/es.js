@@ -65,4 +65,30 @@ export default {
   'copilot.sourceRules': 'reglas',
   'copilot.suggestion.design': 'Diseñar red para 3 sectores',
   'copilot.suggestion.audit': 'Auditar presiones de la red',
+
+  // Lienzo
+  'canvas.label': 'Lienzo de la red de agua',
+  'canvas.pipeLabel': 'Tubería {from} a {to}, DN{dn}',
+  'canvas.pipeWarn': ', velocidad excesiva',
+  'canvas.nodeLabel': '{name}, {type}',
+  'canvas.nodePressure': ', {p} metros de columna de agua',
+  'canvas.empty':
+    'El lienzo está vacío. Añade un tanque desde la paleta o pide una red al copiloto',
+  'canvas.pickSecond': 'Elige el segundo componente',
+  'canvas.pickTwo': 'Haz clic en dos componentes para conectarlos',
+  'canvas.zoomIn': 'Acercar',
+  'canvas.zoomOut': 'Alejar',
+  'canvas.fit': 'Encuadrar toda la red',
+  'canvas.grid': 'Mostrar cuadrícula',
+  'canvas.snap': 'Ajuste a cuadrícula',
+  'canvas.snapTitle': 'Imán: ajustar los nodos a la cuadrícula al moverlos',
+  'canvas.fullscreen': 'Pantalla completa',
+  'canvas.exitFullscreen': 'Salir de pantalla completa',
+
+  // Cliente HTTP
+  'api.timeout': 'El servidor tardó demasiado en responder',
+  'api.network': 'No se pudo conectar con el servidor',
+  'api.noApi':
+    'No se encontró la API en esta dirección. Revisa que VITE_API_URL apunte al backend.',
+  'api.httpError': 'Error {status} del servidor',
 }

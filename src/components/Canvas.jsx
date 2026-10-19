@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Plus, Minus, Scan, Grid3x3, Magnet, Maximize2, Minimize2 } from 'lucide-react'
 import { fitView } from '../lib/view'
 import { useFullscreen } from '../hooks/useFullscreen'
+import { useI18n } from '../i18n/I18nProvider'
 import { META } from '../lib/componentTypes'
 import { velocity, velocityTier } from '../lib/hydraulics'
 import { TIER_COLORS } from '../lib/tiers'
@@ -41,6 +42,7 @@ export default function Canvas({
   statusOfPipe,
   nodeResult = () => null,
 }) {
+  const { t } = useI18n()
   const svg = useRef(null)
   const drag = useRef(null)
   const pan = useRef(null)
@@ -128,7 +130,7 @@ export default function Canvas({
         ref={svg}
         className="w-full h-full touch-none"
         role="group"
-        aria-label="Lienzo de la red de agua"
+        aria-label={t('canvas.label')}
         style={{ cursor: tool === 'pipe' ? 'crosshair' : 'default' }}
         onWheel={wheel}
         onPointerMove={move}
@@ -178,7 +180,10 @@ export default function Canvas({
                 className={`cursor-pointer ${warn ? 'alert' : ''}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`Tubería ${a.name} a ${b.name}, DN${p.diameter}${warn ? ', velocidad excesiva' : ''}`}
+                aria-label={
+                  t('canvas.pipeLabel', { from: a.name, to: b.name, dn: p.diameter }) +
+                  (warn ? t('canvas.pipeWarn') : '')
+                }
                 aria-pressed={sel}
                 onPointerDown={(e) => {
                   e.stopPropagation()
@@ -246,7 +251,12 @@ export default function Canvas({
                 transform={`translate(${n.x - 28},${n.y - 28})`}
                 role="button"
                 tabIndex={0}
-                aria-label={`${n.name}, ${m.label.toLowerCase()}${typeof res?.pressure === 'number' ? `, ${res.pressure} metros de columna de agua` : ''}`}
+                aria-label={
+                  t('canvas.nodeLabel', { name: n.name, type: m.label.toLowerCase() }) +
+                  (typeof res?.pressure === 'number'
+                    ? t('canvas.nodePressure', { p: res.pressure })
+                    : '')
+                }
                 aria-pressed={sel}
                 onPointerDown={(e) => down(e, n)}
                 onKeyDown={(e) => nodeKey(e, n)}
@@ -295,7 +305,7 @@ export default function Canvas({
       {nodes.length === 0 && (
         <div className="absolute inset-0 grid place-items-center pointer-events-none">
           <p className="max-w-xs text-center text-sm text-slate-400">
-            El lienzo está vacío. Añade un tanque desde la paleta o pide una red al copiloto{' '}
+            {t('canvas.empty')}{' '}
             <kbd className="px-1.5 py-0.5 rounded bg-panel border border-line text-[11px] font-mono">
               Ctrl K
             </kbd>
@@ -307,37 +317,37 @@ export default function Canvas({
           className="absolute top-3 left-3 px-3 py-1.5 rounded-lg bg-panel/90 border border-line text-xs text-sky-300"
           role="status"
         >
-          {first ? 'Elige el segundo componente' : 'Haz clic en dos componentes para conectarlos'}
+          {first ? t('canvas.pickSecond') : t('canvas.pickTwo')}
         </div>
       )}
       <div className="absolute bottom-6 right-4 flex flex-col gap-1 p-1 rounded-xl bg-panel/90 border border-line">
         <button
-          title="Acercar"
-          aria-label="Acercar"
+          title={t('canvas.zoomIn')}
+          aria-label={t('canvas.zoomIn')}
           onClick={() => zoomBy(1.25)}
           className={ZOOM_BTN}
         >
           <Plus size={16} />
         </button>
         <button
-          title="Alejar"
-          aria-label="Alejar"
+          title={t('canvas.zoomOut')}
+          aria-label={t('canvas.zoomOut')}
           onClick={() => zoomBy(1 / 1.25)}
           className={ZOOM_BTN}
         >
           <Minus size={16} />
         </button>
         <button
-          title="Encuadrar toda la red"
-          aria-label="Encuadrar toda la red"
+          title={t('canvas.fit')}
+          aria-label={t('canvas.fit')}
           onClick={fit}
           className={ZOOM_BTN}
         >
           <Scan size={16} />
         </button>
         <button
-          title="Mostrar cuadrícula"
-          aria-label="Mostrar cuadrícula"
+          title={t('canvas.grid')}
+          aria-label={t('canvas.grid')}
           aria-pressed={gridOn}
           onClick={onToggleGrid}
           className={toggleBtn(gridOn)}
@@ -345,8 +355,8 @@ export default function Canvas({
           <Grid3x3 size={16} />
         </button>
         <button
-          title="Imán: ajustar los nodos a la cuadrícula al moverlos"
-          aria-label="Ajuste a cuadrícula"
+          title={t('canvas.snapTitle')}
+          aria-label={t('canvas.snap')}
           aria-pressed={snapOn}
           onClick={onToggleSnap}
           className={toggleBtn(snapOn)}
@@ -355,8 +365,8 @@ export default function Canvas({
         </button>
         {fullscreen.supported && (
           <button
-            title={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
-            aria-label={fullscreen.active ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            title={fullscreen.active ? t('canvas.exitFullscreen') : t('canvas.fullscreen')}
+            aria-label={fullscreen.active ? t('canvas.exitFullscreen') : t('canvas.fullscreen')}
             aria-pressed={fullscreen.active}
             onClick={fullscreen.toggle}
             className={ZOOM_BTN}

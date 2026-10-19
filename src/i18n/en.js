@@ -59,4 +59,28 @@ export default {
   'copilot.sourceRules': 'rules',
   'copilot.suggestion.design': 'Design a network for 3 sectors',
   'copilot.suggestion.audit': 'Audit network pressures',
+
+  'canvas.label': 'Water network canvas',
+  'canvas.pipeLabel': 'Pipe {from} to {to}, DN{dn}',
+  'canvas.pipeWarn': ', excessive velocity',
+  'canvas.nodeLabel': '{name}, {type}',
+  'canvas.nodePressure': ', {p} meters of water column',
+  'canvas.empty':
+    'The canvas is empty. Add a tank from the palette or ask the copilot for a network',
+  'canvas.pickSecond': 'Pick the second component',
+  'canvas.pickTwo': 'Click two components to connect them',
+  'canvas.zoomIn': 'Zoom in',
+  'canvas.zoomOut': 'Zoom out',
+  'canvas.fit': 'Fit the whole network',
+  'canvas.grid': 'Show grid',
+  'canvas.snap': 'Snap to grid',
+  'canvas.snapTitle': 'Magnet: snap nodes to the grid when moving them',
+  'canvas.fullscreen': 'Fullscreen',
+  'canvas.exitFullscreen': 'Exit fullscreen',
+
+  'api.timeout': 'The server took too long to respond',
+  'api.network': 'Could not connect to the server',
+  'api.noApi':
+    'The API was not found at this address. Check that VITE_API_URL points to the backend.',
+  'api.httpError': 'Server error {status}',
 }
