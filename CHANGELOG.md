@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+- **Tema claro/oscuro** (respeta el del sistema y se recuerda).
+- **Idioma español/inglés** en toda la interfaz, informes, exportaciones y mensajes del servidor.
+- Guía de sustentación y documentación de despliegue en tono neutro.
+
 ## 1.2.0
 
 - Controles del lienzo: **encuadrar toda la red**, **mostrar/ocultar la cuadrícula**, **imán** independiente y **pantalla completa**.
@@ -13,7 +19,7 @@
 
 ## 1.0.0
 
-Primera versión de entrega. Frontend separado del backend.
+Primera versión estable. Frontend separado del backend.
 
 ### Añadido
 
