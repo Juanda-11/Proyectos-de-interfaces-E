@@ -15,6 +15,18 @@
     />
     <meta property="og:type" content="website" />
     <title>HydroGraph AI</title>
+    <script>
+      // Aplica el tema y el idioma guardados antes de pintar, para evitar un parpadeo
+      try {
+        var theme = localStorage.getItem('hydrograph-ai:theme')
+        if (theme !== 'light' && theme !== 'dark')
+          theme = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = theme
+        var lang =
+          localStorage.getItem('hydrograph-ai:lang') || (navigator.language || 'es').slice(0, 2)
+        document.documentElement.lang = lang === 'en' ? 'en' : 'es'
+      } catch (e) {}
+    </script>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
