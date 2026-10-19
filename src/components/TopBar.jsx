@@ -10,6 +10,8 @@ import {
   Scale,
   Loader2,
   WifiOff,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import FileMenu from './FileMenu'
 import { useI18n } from '../i18n/I18nProvider'
@@ -22,13 +24,15 @@ export default function TopBar({
   onOptimize,
   onBalance,
   busy,
+  theme = 'dark',
+  onToggleTheme = () => {},
   canUndo,
   canRedo,
   onUndo,
   onRedo,
   ...files
 }) {
-  const { t } = useI18n()
+  const { t, lang, setLang } = useI18n()
   const warn = warnings > 0
   return (
     <header className="h-12 shrink-0 flex items-center gap-4 px-4 bg-panel border-b border-line">
@@ -65,6 +69,37 @@ export default function TopBar({
       )}
 
       <div className="ml-auto flex items-center gap-2">
+        <div className="flex gap-1 mr-1">
+          <button
+            onClick={onToggleTheme}
+            title={theme === 'dark' ? t('topbar.theme.toLight') : t('topbar.theme.toDark')}
+            aria-label={theme === 'dark' ? t('topbar.theme.toLight') : t('topbar.theme.toDark')}
+            className="w-8 h-8 grid place-items-center rounded-lg border border-line text-slate-300 hover:bg-white/5 transition"
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+          <div
+            role="group"
+            aria-label={t('topbar.language')}
+            className="flex rounded-lg border border-line overflow-hidden text-xs font-medium"
+          >
+            {[
+              ['es', 'ES', 'Español'],
+              ['en', 'EN', 'English'],
+            ].map(([code, short, name]) => (
+              <button
+                key={code}
+                onClick={() => setLang(code)}
+                aria-pressed={lang === code}
+                aria-label={name}
+                title={name}
+                className={`px-2 h-8 transition ${lang === code ? 'bg-water text-white' : 'text-slate-300 hover:bg-white/5'}`}
+              >
+                {short}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="flex mr-1 rounded-lg border border-line overflow-hidden">
           {[
             [Undo2, t('topbar.undo'), onUndo, canUndo],

@@ -214,4 +214,8 @@ export default {
   'backend.offline': 'No server · local mode',
   'backend.rules': 'rules-based copilot',
   'backend.ai': 'AI {provider} {model}',
+
+  'topbar.theme.toLight': 'Switch to light theme',
+  'topbar.theme.toDark': 'Switch to dark theme',
+  'topbar.language': 'Language',
 }

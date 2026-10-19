@@ -228,4 +228,8 @@ export default {
   'backend.offline': 'Sin servidor · modo local',
   'backend.rules': 'copiloto por reglas',
   'backend.ai': 'IA {provider} {model}',
+
+  'topbar.theme.toLight': 'Cambiar a tema claro',
+  'topbar.theme.toDark': 'Cambiar a tema oscuro',
+  'topbar.language': 'Idioma',
 }
