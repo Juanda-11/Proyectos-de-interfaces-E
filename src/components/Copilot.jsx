@@ -36,7 +36,11 @@ export default function Copilot({ onSubmit }) {
   useEffect(() => {
     if (open) input.current?.focus()
   }, [open])
-  useEffect(() => end.current?.scrollIntoView?.({ behavior: 'smooth' }), [msgs, loading])
+  useEffect(() => {
+    // Sin devolver nada: React interpreta cualquier valor devuelto por un efecto como su función de limpieza,
+    // y algunos navegadores o extensiones hacen que scrollIntoView devuelva un valor (p. ej. una promesa)
+    end.current?.scrollIntoView?.({ behavior: 'smooth' })
+  }, [msgs, loading])
 
   const submit = async (q = text) => {
     q = q.trim()

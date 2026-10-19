@@ -64,4 +64,19 @@ describe('Copilot', () => {
     await userEvent.click(screen.getByText('Auditar presiones de la red'))
     expect(onSubmit).toHaveBeenCalledWith('Auditar presiones de la red')
   })
+
+  it('no se rompe si scrollIntoView devuelve un valor (algunos navegadores o extensiones)', async () => {
+    const original = Element.prototype.scrollIntoView
+    Element.prototype.scrollIntoView = vi.fn(() => Promise.resolve('scrolled'))
+    try {
+      const onSubmit = vi.fn().mockResolvedValue({ message: 'Hecho', source: 'rules' })
+      render(<Copilot onSubmit={onSubmit} />)
+      await userEvent.type(await open(), 'hola{Enter}')
+      expect(await screen.findByText('Hecho')).toBeInTheDocument()
+      await userEvent.click(screen.getByLabelText('Cerrar copiloto'))
+      expect(screen.getByText('Copiloto IA')).toBeInTheDocument()
+    } finally {
+      Element.prototype.scrollIntoView = original
+    }
+  })
 })
