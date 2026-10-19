@@ -1,8 +1,25 @@
+const v = (name) => `rgb(var(--c-${name}) / <alpha-value>)`
+
+/** Tonos que cambian con el tema (claro/oscuro): los valores están en src/index.css */
+const themed = (name, shades) => Object.fromEntries(shades.map((s) => [s, v(`${name}-${s}`)]))
+
 module.exports = {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
-      colors: { app: '#0F172A', panel: '#1E293B', line: '#334155' },
+      colors: {
+        app: v('app'),
+        panel: v('panel'),
+        line: v('line'),
+        slate: themed('slate', [100, 200, 300, 400, 500]),
+        sky: themed('sky', [100, 300, 400]),
+        orange: themed('orange', [300, 400]),
+        red: themed('red', [100, 200, 300, 400]),
+        emerald: themed('emerald', [100, 400]),
+        violet: themed('violet', [100, 200, 300]),
+        fuchsia: themed('fuchsia', [400]),
+        amber: themed('amber', [300]),
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'Consolas', 'monospace'],
