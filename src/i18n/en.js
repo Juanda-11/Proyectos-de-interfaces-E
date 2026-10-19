@@ -175,4 +175,8 @@ export default {
     'Recommended maximum velocity: {max} m/s; minimum to avoid sedimentation: 0.3 m/s.',
   'report.criteriaPressure': 'Service pressure: 10–70 {unit}.',
   'report.criteriaLoss': 'Friction loss: Hazen-Williams (C = 130).',
+
+  'export.title': 'HydroGraph AI · Distribution network',
+  'export.pngFailed': 'Could not generate the PNG',
+  'export.renderFailed': 'Could not render the image',
 }
