@@ -4,7 +4,7 @@ import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 
 export default [
-  { ignores: ['dist/', 'coverage/', 'node_modules/', '.vercel/'] },
+  { ignores: ['release/', 'dist/', 'coverage/', 'node_modules/', '.vercel/'] },
   js.configs.recommended,
   {
     files: ['src/**/*.{js,jsx}'],

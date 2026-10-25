@@ -15,12 +15,12 @@
     "coverage": "vitest run --coverage",
     "check": "npm run lint && npm run format:check && npm run coverage",
     "electron": "electron .",
-    "electron:dev": "concurrently \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV=1 electron .\""
-  },
-  "dependencies": {
-    "lucide-react": "^0.460.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "electron:dev": "concurrently \"vite\" \"wait-on tcp:5173 && cross-env VITE_DEV=1 electron .\"",
+    "build:desktop": "vite build --mode desktop",
+    "desktop:dir": "npm run build:desktop && electron-builder --dir",
+    "desktop:win": "npm run build:desktop && electron-builder --win",
+    "desktop:linux": "npm run build:desktop && electron-builder --linux",
+    "desktop:mac": "npm run build:desktop && electron-builder --mac"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
@@ -40,8 +40,11 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",
     "jsdom": "^29.1.1",
+    "lucide-react": "^0.460.0",
     "postcss": "^8.4.47",
     "prettier": "^3.9.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tailwindcss": "^3.4.14",
     "vite": "^7.3.7",
     "vitest": "^5.0.5",
@@ -51,5 +54,66 @@
   "engines": {
     "node": ">=20"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "author": {
+    "name": "Juanda-11",
+    "email": "juanda-11@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/Juanda-11/Proyectos-de-interfaces-E",
+  "build": {
+    "appId": "com.hydrographai.desktop",
+    "productName": "HydroGraph AI",
+    "copyright": "Copyright © 2026 Juanda-11",
+    "artifactName": "HydroGraph-AI-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education",
+      "synopsis": "Editor de redes de agua asistido por IA"
+    }
+  }
 }
