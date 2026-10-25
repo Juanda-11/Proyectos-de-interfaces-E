@@ -8,3 +8,4 @@ coverage/
 .vercel/
 *.log
 .DS_Store
+release/

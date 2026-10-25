@@ -56,17 +56,19 @@ Guía completa, con comprobaciones y diagnóstico: [`docs/DEPLOY.md`](docs/DEPLO
 
 ## Scripts
 
-| Comando                             | Descripción                                           |
-| ----------------------------------- | ----------------------------------------------------- |
-| `npm run dev`                       | Servidor de desarrollo con recarga en vivo            |
-| `npm run build` / `npm run preview` | Compilación de producción y vista previa              |
-| `npm test` / `npm run coverage`     | Pruebas (Vitest + Testing Library) y cobertura        |
-| `npm run lint` / `npm run format`   | ESLint y Prettier                                     |
-| `npm run check`                     | Lint + formato + pruebas (lo mismo que ejecuta la CI) |
-| `npm run electron:dev`              | Ventana de escritorio (Electron) con recarga en vivo  |
-| `npm run build && npm run electron` | Versión de escritorio con la compilación local        |
+| Comando                                                 | Descripción                                           |
+| ------------------------------------------------------- | ----------------------------------------------------- |
+| `npm run dev`                                           | Servidor de desarrollo con recarga en vivo            |
+| `npm run build` / `npm run preview`                     | Compilación de producción y vista previa              |
+| `npm test` / `npm run coverage`                         | Pruebas (Vitest + Testing Library) y cobertura        |
+| `npm run lint` / `npm run format`                       | ESLint y Prettier                                     |
+| `npm run check`                                         | Lint + formato + pruebas (lo mismo que ejecuta la CI) |
+| `npm run electron:dev`                                  | Ventana de escritorio (Electron) con recarga en vivo  |
+| `npm run desktop:win` · `desktop:mac` · `desktop:linux` | Instaladores de escritorio en `release/`              |
 
-> Para la versión de escritorio, compila con `VITE_API_URL` apuntando al backend (la ventana carga `file://` y no tiene mismo origen).
+## Versión de escritorio
+
+Instaladores para **Windows, macOS y Linux** (Electron + electron-builder), generados desde _Actions → Desktop → Run workflow_ o con `npm run desktop:win | desktop:mac | desktop:linux`. Detalles, avisos de seguridad del sistema operativo y funcionamiento en [`docs/DESKTOP.md`](docs/DESKTOP.md).
 
 ## Atajos
 
