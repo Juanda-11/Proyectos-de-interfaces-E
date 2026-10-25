@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0
+
+- **Versión de escritorio**: instaladores para Windows (`.exe`), macOS (`.dmg`) y Linux (`.AppImage`, `.deb`) con electron-builder, icono propio y workflow de GitHub Actions que los genera y los publica en una Release.
+
 ## 1.3.0
 
 - **Tema claro/oscuro** (respeta el del sistema y se recuerda).
