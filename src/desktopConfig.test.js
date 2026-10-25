@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 describe('configuración de la versión de escritorio', () => {
   it('.env.desktop define la URL absoluta del backend (https, sin barra final)', () => {
-    const env = readFileSync(new URL('../.env.desktop', import.meta.url), 'utf8')
+    const env = readFileSync(resolve(process.cwd(), '.env.desktop'), 'utf8')
     const url = env.match(/^VITE_API_URL=(.+)$/m)?.[1]
     expect(url).toMatch(/^https:\/\/[^/\s]+$/)
   })
