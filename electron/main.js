@@ -19,7 +19,7 @@ function allowApiCalls() {
       )
       headers['Access-Control-Allow-Origin'] = ['*']
       headers['Access-Control-Allow-Methods'] = ['GET, POST, OPTIONS']
-      headers['Access-Control-Allow-Headers'] = ['Content-Type, Accept-Language']
+      headers['Access-Control-Allow-Headers'] = ['Content-Type, Accept-Language, Authorization']
       callback({ responseHeaders: headers })
     },
   )
