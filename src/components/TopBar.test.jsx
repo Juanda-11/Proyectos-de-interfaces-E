@@ -2,6 +2,11 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import TopBar from './TopBar'
+import { useAuth } from '../auth/AuthProvider'
+
+vi.mock('../auth/AuthProvider', () => ({
+  useAuth: vi.fn(() => ({ status: 'open', user: null, logout: vi.fn() })),
+}))
 
 const props = (extra = {}) => ({
   running: false,
@@ -71,5 +76,17 @@ describe('TopBar', () => {
     render(<TopBar {...p} />)
     await userEvent.click(screen.getByText('Optimizar'))
     expect(p.onOptimize).toHaveBeenCalled()
+  })
+
+  it('muestra la cuenta activa en la barra superior', () => {
+    useAuth.mockReturnValueOnce({
+      status: 'authenticated',
+      user: { id: 'u1', name: 'Ana Pérez', email: 'a@b.co' },
+      logout: vi.fn(),
+    })
+    render(<TopBar {...props()} />)
+    expect(
+      screen.getByRole('button', { name: 'Menú de la cuenta de Ana Pérez' }),
+    ).toBeInTheDocument()
   })
 })
