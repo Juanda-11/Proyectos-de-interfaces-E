@@ -11,7 +11,10 @@ const json = (data, status = 200) => ({
   blob: async () => new Blob(['x']),
 })
 
-beforeEach(() => vi.stubGlobal('fetch', vi.fn()))
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn())
+  clearToken()
+})
 afterEach(() => vi.unstubAllGlobals())
 
 describe('api client', () => {
