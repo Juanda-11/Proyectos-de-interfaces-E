@@ -4,6 +4,9 @@ import userEvent from '@testing-library/user-event'
 import App from './App'
 import { ToastProvider } from './hooks/useToasts'
 import { I18nProvider } from './i18n/I18nProvider'
+import { AuthProvider } from './auth/AuthProvider'
+import AuthGate from './components/AuthGate'
+import { clearToken, notifyUnauthorized, setToken } from './auth/session'
 import { ApiError, api } from './api/client'
 import { downloadBlob } from './lib/download'
 import { svgToPngBlob } from './lib/exportImage'
@@ -14,6 +17,9 @@ vi.mock('./api/client', async (orig) => ({
   ...(await orig()),
   api: {
     health: vi.fn(),
+    me: vi.fn(),
+    login: vi.fn(),
+    register: vi.fn(),
     simulate: vi.fn(),
     balance: vi.fn(),
     optimize: vi.fn(),
@@ -396,6 +402,89 @@ describe('App', () => {
       await userEvent.click(screen.getByRole('menuitem', { name: /imagen \(SVG\)/ }))
       const text = await vi.mocked(downloadBlob).mock.calls[0][0].text()
       expect(text).toContain('fill="#F1F5F9"/>')
+    })
+  })
+
+  describe('sesión', () => {
+    const renderGated = () =>
+      render(
+        <I18nProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <AuthGate>
+                <App />
+              </AuthGate>
+            </AuthProvider>
+          </ToastProvider>
+        </I18nProvider>,
+      )
+    beforeEach(() => {
+      localStorage.setItem('hydrograph-ai:lang', 'es')
+      clearToken()
+      api.health.mockResolvedValue({
+        status: 'ok',
+        ai: 'rules',
+        auth: { enabled: true, registration: true, demo: null },
+      })
+    })
+
+    it('sin sesión se muestra el acceso y no la aplicación', async () => {
+      renderGated()
+      expect(
+        await screen.findByRole('heading', { name: 'Bienvenido de nuevo' }),
+      ).toBeInTheDocument()
+      expect(screen.queryByText('Simular Flujo')).not.toBeInTheDocument()
+    })
+
+    it('iniciar sesión abre la aplicación y cerrarla vuelve al acceso', async () => {
+      api.login.mockResolvedValue({
+        token: 'tok',
+        user: { id: 'u1', email: 'ana@example.com', name: 'Ana Pérez' },
+      })
+      renderGated()
+      await userEvent.type(await screen.findByLabelText('Correo electrónico'), 'ana@example.com')
+      await userEvent.type(screen.getByLabelText('Contraseña'), 'Clave-segura-1')
+      await userEvent.click(screen.getByRole('button', { name: 'Entrar' }))
+      expect(await screen.findByText('Simular Flujo')).toBeInTheDocument()
+      await userEvent.click(screen.getByRole('button', { name: 'Menú de la cuenta de Ana Pérez' }))
+      await userEvent.click(screen.getByRole('menuitem', { name: 'Cerrar sesión' }))
+      expect(
+        await screen.findByRole('heading', { name: 'Bienvenido de nuevo' }),
+      ).toBeInTheDocument()
+    })
+
+    it('cada cuenta guarda y recupera su propia red', async () => {
+      setToken('tok')
+      api.me.mockResolvedValue({ user: { id: 'u-ana', email: 'a@b.co', name: 'Ana' } })
+      saveNetwork(makeSectors(5), 'u-ana')
+      saveNetwork(makeSectors(2), 'u-luis')
+      renderGated()
+      expect(await screen.findByText(/8 nodos · 7 tuberías/)).toBeInTheDocument()
+      await userEvent.click(screen.getByTitle('Bomba'))
+      await waitFor(() => expect(loadNetwork('u-ana').nodes).toHaveLength(9), { timeout: 2000 })
+      expect(loadNetwork('u-luis').nodes).toHaveLength(5)
+    })
+
+    it('una sesión caducada (401) devuelve al acceso con un aviso', async () => {
+      setToken('tok')
+      api.me.mockResolvedValue({ user: { id: 'u1', email: 'a@b.co', name: 'Ana' } })
+      api.simulate.mockImplementation(async () => {
+        notifyUnauthorized()
+        throw new ApiError('no', { status: 401, code: 'UNAUTHORIZED' })
+      })
+      renderGated()
+      await userEvent.click(await screen.findByText('Simular Flujo'))
+      expect(await screen.findByText(/Tu sesión expiró/)).toBeInTheDocument()
+    })
+
+    it('sin servidor se puede trabajar en modo local', async () => {
+      api.health.mockRejectedValue(new ApiError('sin red', { code: 'NETWORK' }))
+      renderGated()
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Trabajar sin cuenta (modo local)' }),
+      )
+      expect(await screen.findByText('Simular Flujo')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Iniciar sesión' })).toBeInTheDocument()
     })
   })
 })

@@ -8,6 +8,7 @@ Editor visual para **diseñar, simular y auditar redes de suministro de agua** c
 
 ## Qué se puede hacer
 
+- **Acceso con cuenta**: inicio de sesión, registro y cuenta de demostración; cada usuario conserva su propia red. Sin servidor se puede entrar en modo local.
 - **Dibujar la red**: tanques, bombas, válvulas, nodos y tuberías; arrastrar con imán a la cuadrícula (opcional), mostrar u ocultar la cuadrícula, zoom, desplazamiento, **encuadrar toda la red**, pantalla completa y deshacer/rehacer.
 - **Simular el flujo**: velocidades, pérdidas de carga (Hazen-Williams) y presiones calculadas por el backend, con alertas visuales, tuberías coloreadas por velocidad y leyenda plegable y lista de problemas que lleva al elemento afectado.
 - **Copiloto IA** (`Ctrl+K`): _«Diseñar red para 4 sectores»_, _«Auditar presiones»_. Usa **Gemini** (clave gratuita) o Claude si el backend tiene clave; si no, un motor por reglas.
@@ -108,6 +109,12 @@ electron/main.js            # Ventana de escritorio
 ## Pruebas
 
 Más de 200 pruebas cubren la lógica (`lib/`, hooks, cliente HTTP) y la interfaz (componentes y flujos completos de `App` con el backend simulado). La CI ejecuta lint, formato, cobertura y build en Node 20 y 22.
+
+## Acceso
+
+La aplicación abre con una pantalla de acceso (inicio de sesión y registro). La cuenta de demostración está disponible con un clic. La sesión es un token JWT que emite el backend y se guarda en el navegador (o en la ventana de escritorio); cuando caduca o el servidor la rechaza, se vuelve a la pantalla de acceso. Si no hay conexión con el servidor, se ofrece reintentar o trabajar en **modo local** sin cuenta.
+
+![Pantalla de acceso](docs/screenshots/login.png)
 
 ## Material de presentación
 

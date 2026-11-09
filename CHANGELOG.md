@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0
+
+- **Acceso con cuentas**: pantalla de inicio de sesión y registro (con cuenta de demostración), menú de cuenta con cierre de sesión, sesiones JWT, rutas de la API protegidas, límite de intentos y red guardada por usuario. Modo local cuando no hay servidor.
+
 ## 1.4.0
 
 - **Versión de escritorio**: instaladores para Windows (`.exe`), macOS (`.dmg`) y Linux (`.AppImage`, `.deb`) con electron-builder, icono propio y workflow de GitHub Actions que los genera y los publica en una Release.

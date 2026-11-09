@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { api, ApiError } from './client'
 import { setLanguage } from '../i18n'
+import { clearToken, onUnauthorized, setToken } from '../auth/session'
 
 const net = { nodes: [{ id: 'A' }], pipes: [], selected: 'ignorado' }
 const json = (data, status = 200) => ({
@@ -10,7 +11,10 @@ const json = (data, status = 200) => ({
   blob: async () => new Blob(['x']),
 })
 
-beforeEach(() => vi.stubGlobal('fetch', vi.fn()))
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn())
+  clearToken()
+})
 afterEach(() => vi.unstubAllGlobals())
 
 describe('api client', () => {
@@ -126,5 +130,55 @@ describe('api client', () => {
     expect(await api.simulate(net).catch((e) => e.code)).toBe('NETWORK')
     fetch.mockRejectedValueOnce(Object.assign(new Error('t'), { name: 'TimeoutError' }))
     expect(await api.simulate(net).catch((e) => e.code)).toBe('TIMEOUT')
+  })
+
+  describe('autenticación', () => {
+    it('adjunta el token como Bearer en las rutas protegidas', async () => {
+      fetch.mockResolvedValue(json({}))
+      setToken('tok-123')
+      await api.simulate(net)
+      expect(fetch.mock.calls[0][1].headers.Authorization).toBe('Bearer tok-123')
+    })
+    it('no envía Authorization sin sesión ni en login/registro', async () => {
+      fetch.mockResolvedValue(json({}))
+      await api.simulate(net)
+      setToken('tok-123')
+      await api.login('a@b.c', 'clave-123')
+      await api.register('Ana', 'a@b.c', 'clave-123')
+      for (const call of fetch.mock.calls) expect(call[1].headers.Authorization).toBeUndefined()
+      expect(fetch.mock.calls[1][0]).toBe('/api/auth/login')
+      expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual({
+        email: 'a@b.c',
+        password: 'clave-123',
+      })
+      expect(JSON.parse(fetch.mock.calls[2][1].body)).toEqual({
+        name: 'Ana',
+        email: 'a@b.c',
+        password: 'clave-123',
+      })
+    })
+    it('me consulta /api/auth/me con GET', async () => {
+      fetch.mockResolvedValue(json({ user: { id: '1' } }))
+      setToken('t')
+      expect(await api.me()).toEqual({ user: { id: '1' } })
+      expect(fetch.mock.calls[0][1]).toMatchObject({ method: 'GET' })
+    })
+    it('un 401 con sesión avisa a la aplicación; sin sesión (login fallido) no', async () => {
+      const handler = vi.fn()
+      onUnauthorized(handler)
+      fetch.mockResolvedValue(
+        json(
+          { error: { code: 'INVALID_CREDENTIALS', message: 'Correo o contraseña incorrectos' } },
+          401,
+        ),
+      )
+      setToken('vencido')
+      const err = await api.simulate(net).catch((e) => e)
+      expect(err).toMatchObject({ status: 401, code: 'INVALID_CREDENTIALS' })
+      expect(handler).toHaveBeenCalledTimes(1)
+      await api.login('a@b.c', 'mala-clave').catch(() => {})
+      expect(handler).toHaveBeenCalledTimes(1)
+      onUnauthorized(null)
+    })
   })
 })

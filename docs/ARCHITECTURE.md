@@ -43,6 +43,15 @@ Mientras la simulación está activa, cada cambio de la red reinicia un temporiz
 - **Servidor:** el cliente envía `Accept-Language` y el backend responde en ese idioma (problemas, sugerencias, copiloto y errores).
 - **Tema:** la paleta son variables CSS (`--c-*`) que Tailwind consume como colores; `data-theme="light"` en `<html>` cambia sus valores. El lienzo SVG usa variables `--cv-*`. Un script en `index.html` aplica tema e idioma guardados antes de pintar para evitar parpadeos. El diagrama exportado (SVG/PNG) sigue el tema activo.
 
+## Autenticación
+
+- **Backend:** contraseñas con scrypt, sesiones JWT (HS256) y todas las rutas de cálculo protegidas con `Authorization: Bearer`. Los usuarios se guardan en Upstash Redis (o en memoria en desarrollo); la cuenta de demostración no necesita almacenamiento.
+- **`auth/session.js`** guarda el token y avisa al resto de la app cuando una petición protegida recibe 401; lo usa también el cliente HTTP, que fuera de React no tiene acceso al contexto.
+- **`auth/AuthProvider.jsx`** es una pequeña máquina de estados (`loading → anonymous | authenticated | open | local`). Al arrancar consulta `/api/health` (para saber si hay login, registro y cuenta demo) y valida el token con `/api/auth/me`; sin conexión acepta un token guardado mientras no haya caducado (se lee sin verificar la firma, solo para mostrar el nombre: la verificación real la hace siempre el servidor).
+- **`AuthGate`** decide qué se ve: indicador de carga, pantalla de acceso o la aplicación. Al cerrar sesión la aplicación se desmonta, por lo que no queda estado de la cuenta anterior.
+- **Datos por cuenta:** la red guardada en el navegador usa el id de usuario en su clave, de modo que en un equipo compartido cada persona ve solo su trabajo.
+- **Decisión:** el token se guarda en `localStorage` (válido para web y Electron, sin cookies ni CORS con credenciales). El riesgo es el robo por XSS; se mitiga con cabeceras de seguridad, sin HTML inyectado y caducidad de 7 días.
+
 ## Accesibilidad
 
 - Nodos y tuberías del SVG son `role="button"` enfocables, con nombre accesible (`Sector 3, nodo, 13.3 metros…`).

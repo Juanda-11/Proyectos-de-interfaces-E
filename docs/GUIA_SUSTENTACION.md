@@ -17,7 +17,8 @@
 4. **Optimizar** con un clic y **calcular caudales** a partir de las demandas.
 5. **Copiloto IA** (Gemini o Claude, con respaldo por reglas si la IA no responde).
 6. **Exportar**: EPANET (.inp), JSON, imagen SVG/PNG e informe técnico en Markdown.
-7. **Idioma** español/inglés y **tema** claro/oscuro.
+7. **Acceso con cuentas**: inicio de sesión, registro y cuenta de demostración; cada usuario guarda su propia red.
+8. **Idioma** español/inglés y **tema** claro/oscuro.
 
 ## 4. Cómo está hecho
 
@@ -47,20 +48,22 @@
 
 ## 6. Demostración sugerida (4 minutos)
 
-1. Abrir la app y presentar la red de ejemplo (tanque → bomba → nodo → 3 sectores).
-2. **Simular Flujo**: aparece la advertencia; el tramo J1→S3 se pone naranja (4,07 m/s).
-3. Pulsar el problema → inspector con la sugerencia → **Optimizar**: la red queda estable.
-4. **Copiloto** (`Ctrl+K`): «Diseñar red para 4 sectores» y luego «Auditar presiones».
-5. **Caudales**: cambiar la demanda de un sector y calcular los caudales.
-6. **Archivo → Exportar a EPANET / informe / imagen**.
-7. Cambiar **tema** e **idioma** (se traduce también la respuesta del servidor).
+1. Mostrar la **pantalla de acceso** y entrar con la cuenta de demostración (o crear una cuenta).
+2. Abrir la app y presentar la red de ejemplo (tanque → bomba → nodo → 3 sectores).
+3. **Simular Flujo**: aparece la advertencia; el tramo J1→S3 se pone naranja (4,07 m/s).
+4. Pulsar el problema → inspector con la sugerencia → **Optimizar**: la red queda estable.
+5. **Copiloto** (`Ctrl+K`): «Diseñar red para 4 sectores» y luego «Auditar presiones».
+6. **Caudales**: cambiar la demanda de un sector y calcular los caudales.
+7. **Archivo → Exportar a EPANET / informe / imagen**.
+8. Cambiar **tema** e **idioma** (se traduce también la respuesta del servidor).
 
 ## 7. Preguntas probables
 
 - **¿Qué tan exacto es el cálculo?** Usa Hazen-Williams y propagación de alturas piezométricas desde los tanques; es adecuado para esbozos y redes ramificadas. Para estudios formales se exporta a EPANET (el archivo exportado se verificó simulándolo con WNTR).
 - **¿Por qué dos repositorios?** Separar interfaz y lógica permite desplegarlos, probarlos y evolucionarlos por separado; el frontend sigue funcionando en modo local si el backend no responde.
 - **¿Qué pasa si falla la IA o se agota el cupo gratuito?** El backend valida la respuesta del modelo y, ante cualquier fallo, usa el motor por reglas.
-- **¿Cómo se garantiza la calidad?** Más de 300 pruebas automáticas entre ambos repositorios, validación de entradas en el backend y CI en cada cambio.
+- **¿Cómo funciona el login y es seguro?** El backend guarda las contraseñas con scrypt (sal aleatoria), emite un JWT firmado de 7 días y exige ese token en todas las rutas de cálculo y de IA; el inicio de sesión no revela si un correo existe y limita los intentos por IP. Los usuarios registrados se guardan en una base de datos Upstash Redis. Sin servidor, la app permite trabajar en modo local sin cuenta.
+- **¿Cómo se garantiza la calidad?** Más de 400 pruebas automáticas entre ambos repositorios, validación de entradas en el backend y CI en cada cambio.
 - **¿Qué se podría mejorar?** Redes malladas (resolver el sistema de ecuaciones), tiempos extendidos con consumo variable, guardado en la nube y colaboración.
 
 ## 8. Limitaciones conocidas
