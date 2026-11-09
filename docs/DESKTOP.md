@@ -36,7 +36,7 @@ Los resultados quedan en `release/` (ignorada por Git).
 - `npm run build:desktop` compila con `--mode desktop`, que lee [`.env.desktop`](../.env.desktop): ahí está la URL del backend desplegado. La ventana carga archivos locales (`file://`), por lo que necesita la dirección absoluta de la API.
 - [`electron/main.js`](../electron/main.js) abre la ventana y añade las cabeceras CORS **solo a las respuestas de `/api/*`**: el backend únicamente admite los orígenes de la web y el origen de un archivo local es «null». No se modifica el backend ni se abre el resto de la web.
 - Mantiene una sola instancia, abre los enlaces externos en el navegador y oculta el menú por defecto.
-- Si el backend no responde, la aplicación sigue funcionando en modo local (velocidades), igual que en la web.
+- Si el backend no responde, la pantalla de acceso permite entrar en **modo local** (velocidades), igual que en la web. La sesión se conserva entre aperturas de la aplicación.
 - El icono se genera a partir del logotipo y está en `build/icon.png` (1024 px).
 - La configuración del empaquetado está en la clave `build` de [`package.json`](../package.json).
 
