@@ -33,3 +33,32 @@ describe('storage', () => {
     get.mockRestore()
   })
 })
+
+describe('storage por usuario', () => {
+  it('cada cuenta ve solo su propia red', () => {
+    const ana = makeSectors(2)
+    const luis = makeSectors(4)
+    saveNetwork(ana, 'ana')
+    saveNetwork(luis, 'luis')
+    expect(loadNetwork('ana')).toEqual(ana)
+    expect(loadNetwork('luis')).toEqual(luis)
+    expect(loadNetwork('otra')).toBeNull()
+    expect(loadNetwork()).toBeNull()
+  })
+  it('hereda la red guardada antes de las cuentas solo en modo local', () => {
+    const old = makeSectors(3)
+    localStorage.setItem('hydrograph-ai:network:v1', JSON.stringify(old))
+    expect(loadNetwork('local')).toEqual(old)
+    expect(loadNetwork('ana')).toBeNull()
+  })
+  it('clearNetwork borra solo la red del ámbito indicado', () => {
+    saveNetwork(makeSectors(2), 'ana')
+    saveNetwork(makeSectors(3), 'luis')
+    clearNetwork('ana')
+    expect(loadNetwork('ana')).toBeNull()
+    expect(loadNetwork('luis')).not.toBeNull()
+    localStorage.setItem('hydrograph-ai:network:v1', JSON.stringify(makeSectors(2)))
+    clearNetwork()
+    expect(loadNetwork()).toBeNull()
+  })
+})

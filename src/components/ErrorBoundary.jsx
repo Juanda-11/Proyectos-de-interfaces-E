@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import { clearNetwork } from '../lib/storage'
+import { decodeToken, getToken } from '../auth/session'
 import { translate } from '../i18n'
 
 /** Última barrera: si algo falla al renderizar, ofrece reiniciar en lugar de dejar la pantalla en blanco. */
@@ -16,7 +17,9 @@ export default class ErrorBoundary extends Component {
   }
 
   reset = () => {
-    clearNetwork()
+    // Se borra la copia guardada de la cuenta activa (o la local si no hay sesión)
+    const token = getToken()
+    clearNetwork((token && decodeToken(token)?.user.id) || 'local')
     location.reload()
   }
 

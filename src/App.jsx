@@ -12,6 +12,7 @@ import { useBackendStatus } from './hooks/useBackendStatus'
 import { useNetworkHistory } from './hooks/useNetworkHistory'
 import { useSimulation } from './hooks/useSimulation'
 import { useTheme } from './hooks/useTheme'
+import { useAuth } from './auth/AuthProvider'
 import { useToasts } from './hooks/useToasts'
 import { useI18n } from './i18n/I18nProvider'
 import { META } from './lib/componentTypes'
@@ -29,9 +30,11 @@ const isOffline = (err) => ['NETWORK', 'TIMEOUT', 'NO_API'].includes(err.code)
 export default function App() {
   const toast = useToasts()
   const { t } = useI18n()
+  const { user } = useAuth()
+  const scope = user?.id ?? 'local' // cada cuenta guarda su propia red
   const { theme, toggle: toggleTheme } = useTheme()
   const { net, canUndo, canRedo, checkpoint, update, replace, undo, redo } = useNetworkHistory(
-    () => loadNetwork() ?? makeSectors(3),
+    () => loadNetwork(scope) ?? makeSectors(3),
   )
   const [selected, setSelected] = useState(null) // { kind: 'node' | 'pipe', id }
   const [tool, setTool] = useState('select')
@@ -48,9 +51,9 @@ export default function App() {
 
   // Guardado automático (con retardo para no escribir en cada fotograma de un arrastre)
   useEffect(() => {
-    const id = setTimeout(() => saveNetwork(net), 400)
+    const id = setTimeout(() => saveNetwork(net, scope), 400)
     return () => clearTimeout(id)
-  }, [net])
+  }, [net, scope])
 
   // --- Edición de la red ---
   const addNode = (type) => {
