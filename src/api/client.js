@@ -1,5 +1,6 @@
 import { API_TIMEOUT_MS, API_URL } from '../config'
 import { getLanguage, translate } from '../i18n'
+import { getToken, notifyUnauthorized } from '../auth/session'
 
 /** Error de una petición al backend. `code` permite distinguir fallos de red de errores de validación. */
 export class ApiError extends Error {
@@ -16,14 +17,16 @@ const NO_API_STATUS = [404, 405, 502, 503, 504]
 
 async function request(
   path,
-  { method = 'POST', body, parse = 'json', timeoutMs = API_TIMEOUT_MS } = {},
+  { method = 'POST', body, parse = 'json', timeoutMs = API_TIMEOUT_MS, auth = true } = {},
 ) {
+  const token = auth ? getToken() : null
   let res
   try {
     res = await fetch(`${API_URL}${path}`, {
       method,
       headers: {
         'Accept-Language': getLanguage(),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -37,6 +40,8 @@ async function request(
   }
   if (!res.ok) {
     const { error } = await res.json().catch(() => ({}))
+    // Sesión caducada o token rechazado en una ruta protegida: la aplicación vuelve a la pantalla de acceso
+    if (res.status === 401 && token) notifyUnauthorized()
     // Respuesta que no es de nuestra API (p. ej. 404 de la plataforma): VITE_API_URL mal configurada o backend caído
     if (!error && NO_API_STATUS.includes(res.status)) {
       throw new ApiError(translate('api.noApi'), { status: res.status, code: 'NO_API' })
@@ -55,6 +60,11 @@ const payload = ({ nodes, pipes }) => ({ nodes, pipes })
 
 export const api = {
   health: () => request('/api/health', { method: 'GET', timeoutMs: 5000 }),
+  login: (email, password) =>
+    request('/api/auth/login', { body: { email, password }, auth: false }),
+  register: (name, email, password) =>
+    request('/api/auth/register', { body: { name, email, password }, auth: false }),
+  me: () => request('/api/auth/me', { method: 'GET' }),
   simulate: (net) => request('/api/simulate', { body: payload(net) }),
   balance: (net) => request('/api/balance', { body: payload(net) }),
   optimize: (net) => request('/api/optimize', { body: payload(net) }),
