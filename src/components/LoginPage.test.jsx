@@ -91,6 +91,31 @@ describe('inicio de sesión', () => {
   })
 })
 
+describe('mantener la sesión', () => {
+  const fill = async () => {
+    await userEvent.type(email(), 'ana@example.com')
+    await userEvent.type(password(), 'Clave-segura-1')
+  }
+  it('por defecto la casilla está apagada y la sesión no se recuerda en el equipo', async () => {
+    await setup()
+    api.login.mockResolvedValue({ token: 'tok', user })
+    expect(screen.getByRole('checkbox', { name: /Mantener la sesión iniciada/ })).not.toBeChecked()
+    await fill()
+    await submit()
+    await waitFor(() => expect(getToken()).toBe('tok'))
+    expect(localStorage.getItem('hydrograph-ai:token')).toBeNull()
+    expect(sessionStorage.getItem('hydrograph-ai:token')).toBe('tok')
+  })
+  it('con la casilla marcada la sesión se recuerda en el equipo', async () => {
+    await setup()
+    api.login.mockResolvedValue({ token: 'tok-largo', user })
+    await userEvent.click(screen.getByRole('checkbox', { name: /Mantener la sesión iniciada/ }))
+    await fill()
+    await submit()
+    await waitFor(() => expect(localStorage.getItem('hydrograph-ai:token')).toBe('tok-largo'))
+  })
+})
+
 describe('registro', () => {
   it('cambia de pestaña, valida y crea la cuenta', async () => {
     await setup()

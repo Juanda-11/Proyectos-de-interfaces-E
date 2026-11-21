@@ -112,7 +112,7 @@ Más de 200 pruebas cubren la lógica (`lib/`, hooks, cliente HTTP) y la interfa
 
 ## Acceso
 
-La aplicación abre con una pantalla de acceso (inicio de sesión y registro). La cuenta de demostración está disponible con un clic. La sesión es un token JWT que emite el backend y se guarda en el navegador (o en la ventana de escritorio); cuando caduca o el servidor la rechaza, se vuelve a la pantalla de acceso. Si no hay conexión con el servidor, se ofrece reintentar o trabajar en **modo local** sin cuenta.
+La aplicación abre con una pantalla de acceso (inicio de sesión y registro). La cuenta de demostración está disponible con un clic. La sesión es un token JWT que emite el backend. Por defecto **dura mientras la pestaña o la aplicación de escritorio sigan abiertas**, así que al abrir la app siempre se pide iniciar sesión; con la casilla «Mantener la sesión iniciada en este equipo» se recuerda hasta que caduque (7 días); cuando caduca o el servidor la rechaza, se vuelve a la pantalla de acceso. Si no hay conexión con el servidor, se ofrece reintentar o trabajar en **modo local** sin cuenta.
 
 ![Pantalla de acceso](docs/screenshots/login.png)
 

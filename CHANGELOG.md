@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1
+
+- La sesión ya no se recuerda por defecto: la aplicación pide iniciar sesión cada vez que se abre. Casilla «Mantener la sesión iniciada en este equipo» para conservarla.
+
 ## 1.5.0
 
 - **Acceso con cuentas**: pantalla de inicio de sesión y registro (con cuenta de demostración), menú de cuenta con cierre de sesión, sesiones JWT, rutas de la API protegidas, límite de intentos y red guardada por usuario. Modo local cuando no hay servidor.

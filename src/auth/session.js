@@ -7,30 +7,41 @@ const KEY = 'hydrograph-ai:token'
 let memoryToken = null
 let unauthorizedHandler = null
 
-export function getToken() {
-  if (memoryToken) return memoryToken
+const read = (storage) => {
   try {
-    return localStorage.getItem(KEY)
+    return storage.getItem(KEY)
   } catch {
-    return null // almacenamiento bloqueado: la sesión dura solo mientras la página siga abierta
+    return null // almacenamiento bloqueado
   }
 }
 
-export function setToken(token) {
+/** Token de la sesión: primero el de esta ventana (sessionStorage) y luego el recordado en el equipo (localStorage). */
+export function getToken() {
+  return memoryToken || read(sessionStorage) || read(localStorage)
+}
+
+/**
+ * Guarda el token. Por defecto la sesión termina al cerrar la pestaña o la aplicación, de modo que
+ * al volver a abrirla se pide iniciar sesión; con `remember` se conserva en el equipo (hasta que caduque).
+ */
+export function setToken(token, { remember = false } = {}) {
   memoryToken = token
+  clearToken({ keepMemory: true })
   try {
-    localStorage.setItem(KEY, token)
+    ;(remember ? localStorage : sessionStorage).setItem(KEY, token)
   } catch {
     /* se conserva solo en memoria */
   }
 }
 
-export function clearToken() {
-  memoryToken = null
-  try {
-    localStorage.removeItem(KEY)
-  } catch {
-    /* nada que borrar */
+export function clearToken({ keepMemory = false } = {}) {
+  if (!keepMemory) memoryToken = null
+  for (const storage of [sessionStorage, localStorage]) {
+    try {
+      storage.removeItem(KEY)
+    } catch {
+      /* nada que borrar */
+    }
   }
 }
 

@@ -58,6 +58,7 @@ export default function LoginPage() {
   const [formError, setFormError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [remember, setRemember] = useState(false)
   const formRef = useRef(null)
 
   const canRegister = auth.server?.registration === true
@@ -91,8 +92,8 @@ export default function LoginPage() {
     }
     run(() =>
       registering
-        ? auth.register(form.name.trim(), form.email.trim(), form.password)
-        : auth.login(form.email.trim(), form.password),
+        ? auth.register(form.name.trim(), form.email.trim(), form.password, { remember })
+        : auth.login(form.email.trim(), form.password, { remember }),
     )
   }
 
@@ -307,6 +308,19 @@ export default function LoginPage() {
                 </div>
               )}
 
+              <label className="flex items-start gap-2.5 text-sm text-slate-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-sky-500"
+                />
+                <span>
+                  {t('auth.remember')}
+                  <span className="block text-xs text-slate-500">{t('auth.rememberHint')}</span>
+                </span>
+              </label>
+
               {formError && (
                 <p
                   role="alert"
@@ -341,7 +355,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       disabled={busy}
-                      onClick={() => run(() => auth.login(demo.email, demo.password))}
+                      onClick={() => run(() => auth.login(demo.email, demo.password, { remember }))}
                       className="w-full h-11 flex items-center justify-center gap-2 rounded-xl border border-violet-400/40 text-sm font-medium text-violet-200 hover:bg-violet-500/15 disabled:opacity-60 transition"
                     >
                       <Sparkles size={16} /> {t('auth.demo')}
