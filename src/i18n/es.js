@@ -275,4 +275,8 @@ export default {
   'auth.brand.f1': 'Editor visual con simulación hidráulica en tiempo real',
   'auth.brand.f2': 'Copiloto de IA que diseña y audita tu red',
   'auth.brand.f3': 'Exporta a EPANET, imagen e informe técnico',
+
+  'auth.remember': 'Mantener la sesión iniciada en este equipo',
+  'auth.rememberHint':
+    'Si no la marcas, se pedirá iniciar sesión cada vez que abras la aplicación.',
 }

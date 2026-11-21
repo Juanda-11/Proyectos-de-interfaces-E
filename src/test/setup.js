@@ -10,5 +10,6 @@ Element.prototype.releasePointerCapture ??= () => {}
 afterEach(() => {
   cleanup()
   localStorage.clear()
+  sessionStorage.clear()
   setLanguage('es')
 })

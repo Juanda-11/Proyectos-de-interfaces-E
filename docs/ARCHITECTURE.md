@@ -50,7 +50,8 @@ Mientras la simulación está activa, cada cambio de la red reinicia un temporiz
 - **`auth/AuthProvider.jsx`** es una pequeña máquina de estados (`loading → anonymous | authenticated | open | local`). Al arrancar consulta `/api/health` (para saber si hay login, registro y cuenta demo) y valida el token con `/api/auth/me`; sin conexión acepta un token guardado mientras no haya caducado (se lee sin verificar la firma, solo para mostrar el nombre: la verificación real la hace siempre el servidor).
 - **`AuthGate`** decide qué se ve: indicador de carga, pantalla de acceso o la aplicación. Al cerrar sesión la aplicación se desmonta, por lo que no queda estado de la cuenta anterior.
 - **Datos por cuenta:** la red guardada en el navegador usa el id de usuario en su clave, de modo que en un equipo compartido cada persona ve solo su trabajo.
-- **Decisión:** el token se guarda en `localStorage` (válido para web y Electron, sin cookies ni CORS con credenciales). El riesgo es el robo por XSS; se mitiga con cabeceras de seguridad, sin HTML inyectado y caducidad de 7 días.
+- **Duración de la sesión:** por defecto el token vive en `sessionStorage` (se pierde al cerrar la pestaña o la ventana de escritorio, por lo que el acceso se pide al abrir la app); con «Mantener la sesión» pasa a `localStorage`.
+- **Decisión:** el token se guarda en el almacenamiento del navegador (válido para web y Electron, sin cookies ni CORS con credenciales). El riesgo es el robo por XSS; se mitiga con cabeceras de seguridad, sin HTML inyectado y caducidad de 7 días.
 
 ## Accesibilidad
 

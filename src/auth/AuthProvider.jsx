@@ -73,9 +73,9 @@ export function AuthProvider({ children }) {
     }
   }, [check, invalidate])
 
-  const open = useCallback(async (request) => {
+  const open = useCallback(async (request, remember) => {
     const { token, user } = await request()
-    setToken(token)
+    setToken(token, { remember })
     setState((s) => ({ ...s, status: 'authenticated', user, expired: false }))
     return user
   }, [])
@@ -83,8 +83,10 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       ...state,
-      login: (email, password) => open(() => api.login(email, password)),
-      register: (name, email, password) => open(() => api.register(name, email, password)),
+      login: (email, password, { remember = false } = {}) =>
+        open(() => api.login(email, password), remember),
+      register: (name, email, password, { remember = false } = {}) =>
+        open(() => api.register(name, email, password), remember),
       logout: () => {
         clearToken()
         setState((s) => ({ ...s, status: 'anonymous', user: null, expired: false }))

@@ -15,14 +15,34 @@ const jwt = (payload) => `${b64({ alg: 'HS256' })}.${b64(payload)}.firma`
 beforeEach(() => clearToken())
 
 describe('token almacenado', () => {
-  it('guarda, recupera y borra el token', () => {
+  it('por defecto la sesión dura solo mientras la ventana siga abierta (sessionStorage)', () => {
     expect(getToken()).toBeNull()
     setToken('abc')
     expect(getToken()).toBe('abc')
-    expect(localStorage.getItem('hydrograph-ai:token')).toBe('abc')
+    expect(sessionStorage.getItem('hydrograph-ai:token')).toBe('abc')
+    expect(localStorage.getItem('hydrograph-ai:token')).toBeNull()
     clearToken()
     expect(getToken()).toBeNull()
+    expect(sessionStorage.getItem('hydrograph-ai:token')).toBeNull()
+  })
+  it('con «mantener sesión» se recuerda en el equipo (localStorage) aunque se cierre la ventana', () => {
+    setToken('abc', { remember: true })
+    expect(localStorage.getItem('hydrograph-ai:token')).toBe('abc')
+    expect(sessionStorage.getItem('hydrograph-ai:token')).toBeNull()
+    clearToken()
     expect(localStorage.getItem('hydrograph-ai:token')).toBeNull()
+  })
+  it('un inicio de sesión posterior sin «mantener» borra el token recordado antes', () => {
+    setToken('viejo', { remember: true })
+    setToken('nuevo')
+    expect(localStorage.getItem('hydrograph-ai:token')).toBeNull()
+    expect(getToken()).toBe('nuevo')
+  })
+  it('al reabrir la aplicación sin «mantener sesión» no queda ninguna sesión', () => {
+    setToken('abc')
+    sessionStorage.clear() // equivale a cerrar la pestaña o la ventana de escritorio
+    clearToken({ keepMemory: false })
+    expect(getToken()).toBeNull()
   })
   it('sigue funcionando en memoria si el almacenamiento está bloqueado', () => {
     const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {

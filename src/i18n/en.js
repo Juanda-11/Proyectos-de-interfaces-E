@@ -260,4 +260,8 @@ export default {
   'auth.brand.f1': 'Visual editor with real-time hydraulic simulation',
   'auth.brand.f2': 'AI copilot that designs and audits your network',
   'auth.brand.f3': 'Export to EPANET, images and a technical report',
+
+  'auth.remember': 'Keep me signed in on this device',
+  'auth.rememberHint':
+    'If you leave it unchecked, you will be asked to sign in every time you open the app.',
 }
